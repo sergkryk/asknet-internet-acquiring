@@ -15,16 +15,8 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
 // app.use(express.static(path.join(__dirname, "public")));
 // Описываю маршруты >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 app.use("/tbank", tbankRouter);
-// app.use("/client", clientRouter);
-// app.use("/psb", psbRouter);
-// app.use("/paydayreport", paydayRouter);
-// app.use("/postoffice", postOfficeRouter);
-// app.use("/dealer", dealerRouter);
-// app.use("/", (req, res, next) => {
-//   res.sendFile(path.join(__dirname, "views", "404.html"));
-// });
+// определяю точку входа
 async function main() {
-  // запуск http сервер >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   app.listen(PORT, INTERFACE, () => {
     console.log(`The server started on ${INTERFACE} port ${PORT}`);
   });
