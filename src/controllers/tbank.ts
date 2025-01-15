@@ -3,6 +3,6 @@ import { Request, Response } from "express";
 
 // POST controller
 export const tbankPostController = async function (req: Request, res: Response) {
-  res.status(200).send()
+  res.status(200).send("OK")
   console.log(req.body);
 };
