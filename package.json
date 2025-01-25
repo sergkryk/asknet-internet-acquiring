@@ -15,6 +15,7 @@
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.17.12",
+    "@types/pg": "^8.11.11",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.7.3"
@@ -22,6 +23,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
+    "pg": "^8.13.1",
     "sms_ru": "^0.0.1",
     "soap": "^1.0.3"
   }
