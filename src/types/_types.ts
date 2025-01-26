@@ -1,5 +1,5 @@
 import { Request } from "express";
-import NodeSoap from "../models/soap";
+import NodeSoap from "../soap/soap";
 
 export interface ICitypaySmsInformer {
   req: Request;
