@@ -103,15 +103,17 @@ async function getClientData(params: string | { login: string, pass: string }): 
   if (typeof params === 'string') {
     soap.setHttpCookie(params);
   } else {
-    await soap.clientLogin(params);
+    try {
+      await soap.clientLogin(params);
+    } catch (error) {
+      console.log(error);
+    }
   }
   const account = await soap.getClientAccount();
-  console.log(account);
   if (!validateAccountResponse(account)) {
     throw new Error("Invalid account response");
   }
   const vgroups = await soap.getClientVgroups();
-  console.log(vgroups);
   if (!validateVgroupsResponse(vgroups)) {
     throw new Error("Invalid vgroups response");
   }
