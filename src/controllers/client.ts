@@ -34,6 +34,7 @@ interface FrontedAgreementResponse {
   credit?: number;
   number?: string;
   date?: string;
+  operid?: number;
 }
 interface FrontedResponse {
   account: FrontendAccountResponse;
@@ -42,8 +43,8 @@ interface FrontedResponse {
 }
 // оставляет только нужные поля для отправки на портал абонента
 const filterAgreementFields = (candidate: SoapAgreement): FrontedAgreementResponse => {
-  const { agrmid, vgroups, balance, credit, number, date } = candidate;
-  return { agrmid, vgroups, balance, credit, number, date };
+  const { agrmid, vgroups, balance, credit, number, date, operid } = candidate;
+  return { agrmid, vgroups, balance, credit, number, date, operid };
 }
 // оставляет только нужные поля для отправки на портал абонента
 function filterVgroupsFields(candidate: SoapClientVgroupFull[]): FrontendVgroupsResponse[] {
