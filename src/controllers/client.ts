@@ -103,11 +103,7 @@ async function getClientData(params: string | { login: string, pass: string }): 
   if (typeof params === 'string') {
     soap.setHttpCookie(params);
   } else {
-    try {
-      await soap.clientLogin(params);
-    } catch (error) {
-      console.log(error);
-    }
+    await soap.clientLogin(params);
   }
   const account = await soap.getClientAccount();
   if (!validateAccountResponse(account)) {

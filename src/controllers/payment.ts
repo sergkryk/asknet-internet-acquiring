@@ -50,6 +50,7 @@ export const paymentController = async function (
   res: Response
 ) {
   try {
+    console.log(req.body);
     if (isPaymentBodyValid(req.body)) {
       const { Amount, AgrmId, OperId } = req.body;
       const PaymentRequestBody: IPaymentRequestBody = {
