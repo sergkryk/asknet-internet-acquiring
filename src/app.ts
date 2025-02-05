@@ -11,9 +11,9 @@ import clientRouter from "./routes/client";
 // import { handleError } from "./utils/errorHadler";
 // переменные для порта и адреса для expressjs
 const PORT = 3002;
-const INTERFACE = "localhost";
-const frontendOrigin = "http://localhost:5173";
-// const frontendOrigin = "https://chernuhino.ru";
+const INTERFACE = "127.0.0.1";
+// const frontendOrigin = "http://localhost:5173";
+const frontendOrigin = "https://chernuhino.ru";
 // создаю веб-сервер >>>>>>>>>>>>>>
 const app = express();
 // Set up CORS to allow requests from your frontend (localhost:5173)
