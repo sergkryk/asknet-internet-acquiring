@@ -173,7 +173,10 @@ export const clientGetController = async function (req: Request, res: Response) 
 export const clientPostController = async function (req: Request, res: Response) {
   try {
     validateCredentials(req, res);
+    console.log(req.body);
     const [ account, soap ] = await getClientData({ login: req.body.login, pass: req.body.password });
+    console.log(account);
+    console.log(soap);
     const cookie = soap.getHttpHeaders()?.['set-cookie'];
     setAuthenticatedCookieToClient(res, cookie[0]);
     sendClientData(res, account);
