@@ -1,24 +1,35 @@
 import express from "express";
+import cors from "cors";
+// import NodeSoap from "./soap/soap";
 import dotenv from "dotenv";
 // загружаю переменные из файла .env
 dotenv.config();
 // импортирую роутеры из модулей
 import tbankRouter from "./routes/tbank";
 import paymentRouter from "./routes/payment";
-import NodeSoap from "./soap/soap";
-import { handleError } from "./utils/errorHadler";
+import clientRouter from "./routes/client";
+// import { handleError } from "./utils/errorHadler";
 // переменные для порта и адреса для expressjs
 const PORT = 3002;
-const INTERFACE = "127.0.0.1";
+const INTERFACE = "localhost";
+const frontendOrigin = "http://localhost:5173";
 // создаю веб-сервер >>>>>>>>>>>>>>
 const app = express();
+// Set up CORS to allow requests from your frontend (localhost:5173)
+const corsOptions = {
+  origin: frontendOrigin,  // Allow your frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  // Allow these HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Allow these headers
+  credentials: true,  // Allow cookies/credentials to be sent if necessary
+};
+app.use(cors(corsOptions));
 // подключаю миддлеваре >>>>>>>>>>>>>>
 app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
-// app.use(express.static(path.join(__dirname, "public")));
 // Описываю маршруты >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 app.use("/tbank", tbankRouter);
 app.use("/payment", paymentRouter);
+app.use("/client", clientRouter);
 // определяю точку входа
 async function main() {
   app.listen(PORT, INTERFACE, () => {
@@ -26,11 +37,11 @@ async function main() {
   });
 
   try {
-    const soap = await NodeSoap.init();
-    const login = await soap.loginAsync({
-      login: process.env.BILLING_LOGIN || "",
-      pass: process.env.BILLING_PASS || "",
-    });
+    // const soap = await NodeSoap.init();
+    // const login = await soap.login({
+    //   login: process.env.BILLING_LOGIN || "",
+    //   pass: process.env.BILLING_PASS || "",
+    // });
     // const tarifs = await soap.getTarifs();
     // console.log(tarifs);
 
@@ -49,7 +60,7 @@ async function main() {
     // console.log(canceledPayment);
 
   } catch (error) {
-    handleError(error);
+    // handleError(error);
   }
 }
 

@@ -324,7 +324,7 @@ export interface SoapIdName {
 export interface TariffFilter {
     archive?: 0 | 1; // Optional, long: Include archived tariffs (flag: 0/1)
     unavail?: 0 | 1; // Optional, long: Include unavailable tariffs (flag: 0/1)
-  }
+}
 export interface CancelPaymentParams {
     receipt: string;
     agrmid: number;
@@ -333,4 +333,448 @@ export interface CancelPaymentParams {
 export interface LoginParams {
     login: string;
     pass: string;
+}
+export interface ClientLoginParams {
+    login: string;
+    pass: string;
+}
+export interface SoapClientLogin {
+    uid: number; // Required, xsd:long
+    timelastlogin: string; // Required, xsd:string
+}
+export interface SoapAccount {
+    uid: number; // Required, xsd:long
+    type: number; // Required, xsd:long
+    login: string; // Required, xsd:string
+
+    doctype?: number;
+    ipaccess?: number;
+    billdelivery?: number;
+    category?: number;
+    oksm?: number;
+    templ?: number;
+    wrongactive?: number;
+    archive?: number;
+    ownership?: number;
+    mobileisconfirmed?: boolean;
+    emailisconfirmed?: boolean;
+    offerisaccepted?: boolean;
+    soleproprietor?: boolean;
+    pass?: string;
+    passtype?: number;
+    descr?: string;
+    name?: string;
+    phone?: string;
+    fax?: string;
+    email?: string;
+    mobile?: string;
+    bankname?: string;
+    branchbankname?: string;
+    treasuryname?: string;
+    treasuryaccount?: string;
+    bik?: string;
+    settl?: string;
+    corr?: string;
+    kpp?: string;
+    inn?: string;
+    ogrn?: string;
+    okpo?: string;
+    okved?: string;
+    gendiru?: string;
+    glbuhgu?: string;
+    kontperson?: string;
+    actonwhat?: string;
+    passsernum?: string;
+    passno?: string;
+    passissuedate?: string;
+    passissuedep?: string;
+    passissueplace?: string;
+    birthdate?: string;
+    birthplace?: string;
+    lastmoddate?: string;
+    wrongdate?: string;
+    okato?: string;
+    uuid?: string;
+    abonentname?: string;
+    abonentsurname?: string;
+    abonentpatronymic?: string;
+    managerid?: number;
+    managername?: string;
+    managerlogin?: string;
+    swift?: string;
+    kio?: string;
+    bicbei?: string;
+    iban?: string;
+    bankcorr?: string;
+    bankcorrcode?: string;
+    bankcorraccount?: string;
+    currency?: string;
+    resident?: number;
+    organizationid?: number;
+    orguid?: number;
+    organizationname?: string;
+}
+export interface SoapAddressBrief {
+    type: number; // Required, xsd:long
+    code: string; // Required, xsd:string
+    address: string; // Required, xsd:string
+    buildinguuid: string; // Required, xsd:string
+}
+export interface SoapAgreement {
+    agrmid: number; // Required, xsd:long
+    uid: number; // Required, xsd:long
+    operid: number; // Required, xsd:long
+    curid: number; // Required, xsd:long
+
+    bnotify?: number;
+    archive?: number;
+    vgroups?: number;
+    penaltymethod?: number;
+    monthblockday?: number;
+    agrmtype?: number;
+    balance?: number;
+    balanceacc?: number;
+    credit?: number;
+    promisecredit?: number;
+    installments?: number;
+    balancestrictlimit?: number;
+    blimit?: number;
+    balancestatus?: number;
+    isauto?: number;
+    friendagrmid?: number;
+    parentagrmid?: number;
+    paymentmethod?: number;
+    blockdays?: number;
+    blockmonths?: number;
+    orderpayday?: number;
+    blockorders?: number;
+    blockamount?: number;
+    priority?: number;
+    ownerid?: number;
+    isdefault?: number;
+    organizationid?: number;
+    orgagrmid?: number;
+    nofinblock?: number;
+
+    friendnumber?: string;
+    parentnumber?: string;
+    balancelimitexceeded?: string;
+    number?: string;
+    code?: string;
+    date?: string;
+    closedon?: string;
+    datevalidto?: string;
+    bcheck?: string;
+    symbol?: string;
+    username?: string;
+    opername?: string;
+    agreementidbopos?: string;
+    descr?: string;
+    balancetext?: string;
+    organizationname?: string;
+    initialbalance?: number;
+    errormessage?: string;
+
+    addons?: SoapAgreementAddon[]; // Optional, unbounded array
+}
+interface SoapAccountAddon {
+    type: number;
+    name: string;
+    uid?: number;
+    idx?: number;
+    descr?: string;
+    strvalue?: string;
+}
+interface SoapAgreementAddon {
+    agrmid: number;
+    type: number;
+    idx: number;
+    name: string;
+    descr: string;
+    strvalue: string;
+}
+export interface SoapAccountFull {
+    application?: number; // Optional, xsd:long
+    billdeliveryname?: string; // Optional, xsd:string (default: "")
+    account: SoapAccount; // Required, lbapi:soapAccount
+    usergroups?: SoapUsergroupFull[]; // Optional, unbounded array
+    addresses?: SoapAddressBrief[]; // Optional, unbounded array
+    agreements: SoapAgreement[]; // Optional, unbounded array
+    addons?: SoapAccountAddon[]; // Optional, unbounded array
+    delfromgroups?: number[]; // Optional, unbounded array of xsd:long
+}
+interface SoapTarif {
+    tarid: number;
+    actualtarid?: number;
+    shape?: number;
+    trafflimit?: number;
+    trafflimitper?: number;
+    type?: number;
+    actblock?: number;
+    archive?: number;
+    priceplan?: number;
+    trafftype?: number;
+    dailyrent?: number;
+    dynamicrent?: number;
+    shapeprior?: number;
+    unavaliable?: number;
+    rentmultiply?: number;
+    chargeincoming?: number;
+    curid?: number;
+    used?: number;
+    voipblocklocal?: number;
+    dynroute?: number;
+    servicetype?: number;
+    blockrentduration?: number;
+    rent?: number;
+    blockrent?: number;
+    usrblockrent?: number;
+    admblockrent?: number;
+    coeflow?: number;
+    coefhigh?: number;
+    catnumbers?: number[]; // Assuming lbapi:soapLong maps to an array of numbers
+    descr?: string;
+    descrfull?: string;
+    symbol?: string;
+    link?: string;
+    uuid?: string | null; // Since it's nillable
+    saledictionaryid?: number;
+    additional?: number;
+    commonincludes?: number;
+    usecommonincludes?: number;
+    checkactivehours?: number;
+    rentasservice?: number;
+    availablefl?: number;
+    availableul?: number;
+    organizationid?: number;
+    orgtarid?: number;
+    organizationname?: string;
+}
+interface SoapTariffsSettingsRentAsService {
+    includeabove?: number; // Corresponds to xsd:double
+    rentperiod?: number; // Corresponds to xsd:short
+    rentperiodmonth?: number; // Corresponds to xsd:short
+    beginperiod?: number; // Corresponds to xsd:short
+    rent?: number; // Corresponds to xsd:double
+    blockrent?: number; // Corresponds to xsd:double
+    usrblockrent?: number; // Corresponds to xsd:double
+    admblockrent?: number; // Corresponds to xsd:double
+}
+interface SoapSizeShape {
+    id: number; // Required, corresponds to xsd:long
+    tarid: number; // Required, corresponds to xsd:long
+    amount: number; // Required, corresponds to xsd:long
+    shaperate: number; // Required, corresponds to xsd:long
+}
+interface SoapTimeShape {
+    id: number; // Required, corresponds to xsd:long
+    tarid: number; // Required, corresponds to xsd:long
+    shaperate: number; // Required, corresponds to xsd:long
+    sun: number; // Required, corresponds to xsd:long
+    mon: number; // Required, corresponds to xsd:long
+    tue: number; // Required, corresponds to xsd:long
+    wed: number; // Required, corresponds to xsd:long
+    thu: number; // Required, corresponds to xsd:long
+    fri: number; // Required, corresponds to xsd:long
+    sat: number; // Required, corresponds to xsd:long
+    useweekend: number; // Required, corresponds to xsd:long
+    timefrom: string; // Required, corresponds to xsd:string
+    timeto: string; // Required, corresponds to xsd:string
+}
+interface SoapTariffsAddon {
+    tarid: number; // Required, corresponds to xsd:long
+    type: number; // Required, corresponds to xsd:long
+    tarifftype: number; // Required, corresponds to xsd:long
+    idx: number; // Required, corresponds to xsd:long
+    name: string; // Required, corresponds to xsd:string
+    descr: string; // Required, corresponds to xsd:string
+    strvalue: string; // Required, corresponds to xsd:string
+}
+export interface SoapTarifFull {
+    tarif: SoapTarif; // Required, corresponds to lbapi:soapTarif
+    sizeshapes?: SoapSizeShape[]; // Optional array, corresponds to lbapi:soapSizeShape
+    timeshapes?: SoapTimeShape[]; // Optional array, corresponds to lbapi:soapTimeShape
+    addons?: SoapTariffsAddon[]; // Optional array, corresponds to lbapi:soapTariffsAddon
+    settingsrentasservice: SoapTariffsSettingsRentAsService; // Required, corresponds to lbapi:soapTariffsSettingsRentAsService
+}
+interface SoapCurrentModifier {
+    type?: string; // Corresponds to xsd:string, optional
+    value?: number; // Corresponds to xsd:double, optional
+}
+interface SoapClientVgroup {
+    agrmid?: number; // Corresponds to xsd:long, optional
+    vgid?: number; // Corresponds to xsd:long, optional
+    blkreq?: number; // Corresponds to xsd:long, optional
+    blocked?: number; // Corresponds to xsd:long, optional
+    changed?: number; // Corresponds to xsd:long, optional
+    agentid?: number; // Corresponds to xsd:long, optional
+    tarifid?: number; // Corresponds to xsd:long, optional
+    tariftype?: number; // Corresponds to xsd:long, optional
+    curshape?: number; // Corresponds to xsd:long, optional
+    usesmartcards?: number; // Corresponds to xsd:long, optional
+    usecas?: number; // Corresponds to xsd:long, optional
+    radiusinsertmacstaff?: number; // Corresponds to xsd:long, optional
+    multiply?: number; // Corresponds to xsd:long, optional
+    servicerent?: number; // Corresponds to xsd:double, optional
+    servicevolume?: number; // Corresponds to xsd:long, optional
+    serviceusedin?: number; // Corresponds to xsd:long, optional
+    serviceusedout?: number; // Corresponds to xsd:long, optional
+    agentdescr?: string; // Corresponds to xsd:string, optional
+    tarifdescr?: string; // Corresponds to xsd:string, optional
+    login?: string; // Corresponds to xsd:string, optional
+    currentmodifier?: SoapCurrentModifier; // Corresponds to lbapi:soapCurrentModifier, optional
+}
+interface SoapTarifsRasp {
+    force?: number; // Corresponds to xsd:short, optional
+    recordid: number; // Corresponds to xsd:long, required
+    vgid: number; // Corresponds to xsd:long, required
+    agrmid?: number; // Corresponds to xsd:long, optional
+    groupid?: number; // Corresponds to xsd:long, optional
+    uid?: number; // Corresponds to xsd:long, optional
+    id: number; // Corresponds to xsd:long, required
+    taridnew: number; // Corresponds to xsd:long, required
+    taridold: number; // Corresponds to xsd:long, required
+    agenttype?: number; // Corresponds to xsd:long, optional
+    tarnewcurid?: number; // Corresponds to xsd:long, optional
+    taroldcurid?: number; // Corresponds to xsd:long, optional
+    override?: number; // Corresponds to xsd:long, optional
+    requestby: string; // Corresponds to xsd:string, required
+    changetime: string; // Corresponds to xsd:string, required
+    timeto?: string; // Corresponds to xsd:string, optional
+    vglogin?: string; // Corresponds to xsd:string, optional
+    agrmnum?: string; // Corresponds to xsd:string, optional
+    code?: string; // Corresponds to xsd:string, optional
+    accname?: string; // Corresponds to xsd:string, optional
+    agentname?: string; // Corresponds to xsd:string, optional
+    tarnewname?: string; // Corresponds to xsd:string, optional
+    taroldname?: string; // Corresponds to xsd:string, optional
+    mgrname?: string; // Corresponds to xsd:string, optional
+    tarnewsymbol?: string; // Corresponds to xsd:string, optional
+    taroldsymbol?: string; // Corresponds to xsd:string, optional
+    keepallmodifiers?: number; // Corresponds to xsd:long, optional
+    keeptarmodifier?: number; // Corresponds to xsd:long, optional
+    discount?: number; // Corresponds to xsd:double, optional
+    absdiscount?: number; // Corresponds to xsd:double, optional
+    absblockdiscount?: number; // Corresponds to xsd:double, optional
+    rent?: number; // Corresponds to xsd:double, optional
+    blockrent?: number; // Corresponds to xsd:double, optional
+    servcatidx?: number; // Corresponds to xsd:long, optional
+    tarnewrentasservice?: boolean; // Corresponds to xsd:boolean, optional
+    catdiscounts?: SoapCategoryDiscount[]; // Corresponds to lbapi:soapCategoryDiscount, optional array
+}
+interface SoapCategoryDiscount {
+    catidx?: number;
+    discount?: number;
+    above?: number;
+    rate?: number;
+    includes?: number;
+    parentrecordid?: number;
+    keepmodifier?: number;
+}
+interface SoapStaff {
+    recordid?: number;
+    vgid?: number;
+    equipid?: number;
+    type: number;
+    as?: number;
+    servid?: number;
+    servcatidx?: number;
+    createservice?: boolean;
+    ipmask?: SoapIPMask;
+}
+interface SoapIPMask {
+    ip?: string;
+    mask?: number;
+    prefix?: number;
+    segmentid?: number;
+}
+interface SoapTelStaff {
+    recordid?: number;
+    vgid?: number;
+    device?: number;
+    ldservice?: number;
+    phonerangeid?: number;
+    phonenumber: string;
+    comment?: string;
+    timefrom?: string;
+    timeto?: string;
+    serviceid?: number;
+}
+interface SoapMacStaff {
+    macid?: number;
+    recordid?: number;
+    vgid: number;
+    segment?: string;
+    mac: string;
+}
+interface SoapTarifsStaff {
+    groupid: number;
+    grouptarid: number;
+    groupmoduleid: number;
+    tarid: number;
+    tartype?: number;
+    tarcurid?: number;
+    shape?: number;
+    rent?: number;
+    tarname?: string;
+    tarsymbol?: string;
+    tardescrfull?: string;
+}
+interface SoapTurboShape {
+    recordid: number;
+    vgid: number;
+    servid?: number;
+    tarid?: number;
+    catidx?: number;
+    shape?: number;
+    timefrom?: string;
+    timeto?: string;
+    descr?: string;
+    login?: string;
+}
+interface SoapVgroupAddon {
+    vgid: number;
+    type: number;
+    agentid: number;
+    idx: number;
+    name: string;
+    descr: string;
+    strvalue: string;
+}
+interface SoapBlockRasp {
+    recordid?: number;
+    vgid?: number;
+    groupid?: number;
+    blkreq?: number;
+    id?: number;
+    ishistory?: number;
+    isfreewill?: number;
+    requestby?: number;
+    unblockedby?: number;
+    agrmid?: number;
+    uid?: number;
+    changetime?: string;
+    managerlogin?: string;
+    mgrname?: string;
+    mgrdescr?: string;
+    comment?: string;
+    timeto?: string;
+    login?: string;
+    unblockedmanagerlogin?: string;
+    unblockedmanagername?: string;
+    unblockedmanagerdescr?: string;
+    agrmnum?: string;
+    username?: string;
+}
+export interface SoapClientVgroupFull {
+    vgroup: SoapClientVgroup; // Required, corresponds to lbapi:soapClientVgroup
+    tarrasp?: SoapTarifsRasp[]; // Optional array, corresponds to lbapi:soapTarifsRasp
+    staff?: SoapStaff[]; // Optional array, corresponds to lbapi:soapStaff
+    telstaff?: SoapTelStaff[]; // Optional array, corresponds to lbapi:soapTelStaff
+    macstaff?: SoapMacStaff[]; // Optional array, corresponds to lbapi:soapMacStaff
+    tarstaff?: SoapTarifsStaff[]; // Optional array, corresponds to lbapi:soapTarifsStaff
+    turboshape?: SoapTurboShape[]; // Optional array, corresponds to lbapi:soapTurboShape
+    addons?: SoapVgroupAddon[]; // Optional array, corresponds to lbapi:soapVgroupAddon
+    blockrasp?: SoapBlockRasp[]; // Optional array, corresponds to lbapi:soapBlockRasp
+    addresses?: SoapAddressBrief[]; // Optional array, corresponds to lbapi:soapAddressBrief
 }

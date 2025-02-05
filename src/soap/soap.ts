@@ -1,6 +1,6 @@
-import { Client, createClientAsync } from "soap";
+import { Client, createClientAsync, IHeaders } from "soap";
 import path from "path";
-import {CancelPaymentParams, LoginParams, SoapFilter, SoapIdName, SoapManagerFull, SoapPayment, SoapPaymentFull, TariffFilter} from "./types";
+import {CancelPaymentParams, ClientLoginParams, LoginParams, SoapAccountFull, SoapClientLogin, SoapClientVgroupFull, SoapFilter, SoapIdName, SoapManagerFull, SoapPayment, SoapPaymentFull, SoapTarifFull, TariffFilter} from "./types";
 
 export default class NodeSoap {
     private readonly client: Client;
@@ -45,15 +45,16 @@ export default class NodeSoap {
         return response[0].ret;
     }
 
-    async loginAsync(params: LoginParams): Promise<SoapManagerFull[]> {
+    async login(params: LoginParams): Promise<SoapManagerFull[]> {
         const result = await this.baseRequest<SoapManagerFull[]>(this.client.LoginAsync, params);
+        // add auth cookie to client instance
         const authCookie = this.client.lastResponseHeaders?.["set-cookie"];
         if (authCookie) {
             this.client.addHttpHeader("set-cookie", authCookie);
         }
         return result;
     }
-    async logoutAsync(): Promise<void> {
+    async logout(): Promise<void> {
         await this.baseRequest<void>(this.client.LogoutAsync, {});
     }
     async getPayments(params: SoapFilter): Promise<SoapPaymentFull[]> {
@@ -79,172 +80,30 @@ export default class NodeSoap {
         const result = await this.baseRequest<SoapPaymentFull['pay']['recordid']>(this.client.PaymentAsync, { val: { ...params, status: STATUS_CANCELLED, amount: ZERO_AMOUNT } })
         return result;
     }
+    // methods for customer portal
+    async clientLogin(params: ClientLoginParams): Promise<SoapClientLogin> {
+        const result = await this.baseRequest<SoapClientLogin>(this.client.ClientLoginAsync, params);
+        const authCookie = this.client.lastResponseHeaders?.["set-cookie"];
+        if (authCookie) {
+            this.client.addHttpHeader("set-cookie", authCookie);
+        }
+        return result;
+    }
+    async getClientAccount(): Promise<SoapAccountFull[]> {
+        const result = await this.baseRequest<SoapAccountFull[]>(this.client.getClientAccountAsync, {});
+        return result;
+    }
+    async getClientVgroups(): Promise<SoapClientVgroupFull[]> {
+        const result = await this.baseRequest<SoapClientVgroupFull[]>(this.client.getClientVgroupsAsync, {});
+        return result;
+    }
+    getHttpHeaders(): IHeaders {
+        const cookie = this.client.getHttpHeaders();
+        return cookie;
+    }
+    setHttpCookie(sessnum: string): void {
+        const cookie = `${sessnum};Domain=10.45.0.50;Path=/;Version=1;Max-Age=7200;`;
+        this.client.addHttpHeader("set-cookie", cookie);
+    }
 }
 
-
-// export default class NodeSoap {
-//   public client: Client;
-//   constructor(client: Client) {
-//     this.client = client;
-//   }
-//   static async init(): Promise<NodeSoap> {
-//     try {
-//       const client: Client = await createClientAsync(
-//         path.join(path.dirname(__dirname), "api3.wsdl"),
-//         { endpoint: process.env.BILLING_URL }
-//       );
-//       return new NodeSoap(client);
-//     } catch (error) {
-//       throw new Error("Soap client initialization failed");
-//     }
-//   }
-//   async managerLogin() {
-//     await this.client.LoginAsync({
-//       login: process.env.BILLING_LOGIN,
-//       pass: process.env.BILLING_PASS,
-//     });
-//     if (!isNodeSoapLoginResponseHeaders(this.client.lastResponseHeaders)) {
-//       throw new Error("Failed to login");
-//     }
-//     this.addAuthorisationHttpHeader(
-//       this.client.lastResponseHeaders["set-cookie"]
-//     );
-//   }
-//   addAuthorisationHttpHeader(sessnum: string[]) {
-//     this.client.addHttpHeader("set-cookie", sessnum);
-//   }
-//   async getServiceCategories(fltParams: {}) {
-//     const response = await this.client.getServiceCategoriesAsync(fltParams);
-//     return response;
-//   }
-//   async getStat(dtfrom: string, dtto: string, ani: string) {
-//     // repnum 7 означает статистику по сессиям RADIUS-агента
-//     const repnum = 7;
-//     // номер радиус сервера
-//     const agentid = 2;
-//     // сортировка по учетным записям
-//     const repdetail = 0;
-
-//     const response = await this.client.getStatAsync({
-//       flt: {
-//         repnum,
-//         agentid,
-//         dtfrom,
-//         dtto,
-//         ani,
-//         repdetail,
-//       },
-//     });
-//     return response;
-//   }
-//   async getDiscounts(fltParams: {}) {
-//     const response = await this.client.getDiscountsAsync(fltParams);
-//     return response;
-//   }
-
-//   private async fetchData<T>(
-//     apiMethod: (params: {}) => Promise<any>,
-//     typeGuard: (response: any) => boolean,
-//     fltParams: {}
-//   ): Promise<T | null> {
-//     try {
-//       const response = await apiMethod(fltParams);
-//       return typeGuard(response) ? response[0].ret : null;
-//     } catch (error) {
-//       console.log("Fetch data failed");
-//       return null;
-//     }
-//   }
-
-//   async getTarif(fltParams: {}): Promise<GetTarifResponse[] | null> {
-//     return this.fetchData<GetTarifResponse[]>(
-//       this.client.getTarifAsync,
-//       isGetTarifAPIResponse,
-//       fltParams
-//     );
-//   }
-//   async getTarifs(fltParams: {}): Promise<TarifItem[] | null> {
-//     return this.fetchData<TarifItem[]>(
-//       this.client.getTarifsAsync,
-//       isGetTarifsAPIResponse,
-//       fltParams
-//     );
-//   }
-//   async getVgroups(fltParams: {}): Promise<GetVgroupsItem[] | null> {
-//     return this.fetchData<GetVgroupsItem[]>(
-//       this.client.getVgroupsAsync,
-//       isGetVgroupsAPIResponse,
-//       fltParams
-//     );
-//   }
-//   async getAccounts(fltParams: {}) {
-//     return this.fetchData<GetAccountsItem[]>(
-//       this.client.getAccountsAsync,
-//       isGetAccountsAPIResponse,
-//       fltParams
-//     );
-//     // const response = await this.client.getAccountsAsync(fltParams);
-//     // return response;
-//   }
-//   async getAccount(fltParams: {}) {
-//     return this.fetchData<GetAccountItem[]>(
-//       this.client.getAccountAsync,
-//       isGetAccountAPIResponse,
-//       fltParams
-//     );
-//     // const response = await this.client.getAccountAsync(fltParams);
-//     // return response;
-//   }
-//   async getPayments(fltParams: {}) {
-//     const response = await this.client.getPaymentsAsync(fltParams);
-//     return response;
-//   }
-//   async payment(params: PaymentArguments) {
-//     const { agrmid, amount, modperson = "", transactionId = "" } = params;
-
-//     if (isNaN(Number(amount))) {
-//       throw new Error("Wrong amount type!!!");
-//     }
-//     const receipt = transactionId;
-//     const response = await this.client.PaymentAsync({
-//       val: {
-//         agrmid,
-//         amount,
-//         receipt,
-//         modperson,
-//       },
-//     });
-//     return response;
-//   }
-//   async insupdTarifsRasp(vgid: number) {
-
-//     const response = await this.client.insupdTarifsRaspAsync({
-//       val: {
-//         vgid,
-//         taridnew: 3,
-//         taridold: 2,
-//         changetime: '2025-01-01 00:00:00',
-//       },
-//     });
-//     return response;
-//   }
-//   async cancelPayment(payload: GetPaymentsProfile) {
-//     const STATUS_CANCELLED = "2";
-//     const ZERO_AMOUNT = "0.0";
-//     const { recordid, agrmid, currid, classid, modperson, receipt } =
-//       payload.pay;
-//     const response = await this.client.PaymentAsync({
-//       val: {
-//         recordid,
-//         currid,
-//         classid,
-//         modperson,
-//         agrmid,
-//         receipt,
-//         status: STATUS_CANCELLED,
-//         amount: ZERO_AMOUNT,
-//       },
-//     });
-//     return response;
-//   }
-// }

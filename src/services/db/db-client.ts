@@ -8,10 +8,8 @@ export const PaymentStatusNumeric: Record<PaymentStatus, number> = {
     [PaymentStatus.REFUNDED]: 4,
     [PaymentStatus.REJECTED]: 5,
 };
-
 // Define a type that only allows values from PaymentStatusNumeric
 export type PaymentStatusIds = typeof PaymentStatusNumeric[PaymentStatus];
-
 interface PaymentData {
     AgrmId: number;
     Success: boolean;
@@ -23,8 +21,7 @@ interface PaymentData {
     Amount: number;
     PaymentURL: string;
 }
-
-interface IStoredPayment {
+export interface StoredPayment {
     agrmid: number;
     success: boolean;
     error_code: string;
@@ -35,8 +32,7 @@ interface IStoredPayment {
     amount: number;
     payment_url: string;
 }
-
-function isStoredPayment(data: any): data is IStoredPayment {
+function isStoredPayment(data: any): data is StoredPayment {
     if (typeof data !== "object" || data === null) {
         return false;
     }
@@ -53,7 +49,6 @@ function isStoredPayment(data: any): data is IStoredPayment {
     ];
     return checks.every(check => check);
 }
-
 const poolConfig: PoolConfig = {
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -61,7 +56,6 @@ const poolConfig: PoolConfig = {
     password: process.env.DB_PASSWORD,
     port: parseInt(process.env.DB_PORT || '5432', 10),
 };
-
 class DatabaseClient {
     private pool: Pool;
 
@@ -103,7 +97,7 @@ class DatabaseClient {
         }
     }
 
-    async getPayment(paymentId: string): Promise<IStoredPayment | null> {
+    async getPayment(paymentId: string): Promise<StoredPayment | null> {
         const query = `SELECT * FROM payments WHERE payment_id = $1`;
         const result = await this.pool.query(query, [paymentId]);
         if (result.rows.length === 0 || !isStoredPayment(result.rows[0])) {
