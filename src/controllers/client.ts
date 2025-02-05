@@ -100,17 +100,18 @@ function validateVgroupsResponse(candidate: any): boolean {
 // получает данные абонента из сервиса
 async function getClientData(params: string | { login: string, pass: string }): Promise<[user: FrontedResponse, soap: NodeSoap ]> {
   const soap = await NodeSoap.init();
-  console.log(soap)
   if (typeof params === 'string') {
     soap.setHttpCookie(params);
   } else {
     await soap.clientLogin(params);
   }
   const account = await soap.getClientAccount();
+  console.log(account);
   if (!validateAccountResponse(account)) {
     throw new Error("Invalid account response");
   }
   const vgroups = await soap.getClientVgroups();
+  console.log(vgroups);
   if (!validateVgroupsResponse(vgroups)) {
     throw new Error("Invalid vgroups response");
   }
