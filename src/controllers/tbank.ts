@@ -92,9 +92,7 @@ export const tbankPostController = async function (
 ) {
   try {
     console.log('req.body', req.body);
-    console.log('isBankRequest', isBankRequest(req.body));
     isBankRequest(req.body);
-    console.log('isTokenValid', isTokenValid(req.body));
     isTokenValid(req.body);
     const remotePayment = req.body;
     const localPayment = await fetchLocalPayment(`${remotePayment.PaymentId}`);
