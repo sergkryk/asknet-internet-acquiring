@@ -91,6 +91,7 @@ export const tbankPostController = async function (
   res: Response
 ) {
   try {
+    console.log('req.body', req.body);
     console.log('isBankRequest', isBankRequest(req.body));
     isBankRequest(req.body);
     console.log('isTokenValid', isTokenValid(req.body));
@@ -133,8 +134,10 @@ export const tbankPostController = async function (
     res.status(200).send("OK");
   } catch (error) {
     if (error instanceof HttpError) {
+      console.log('error', error);
       res.status(error.httpStatusCode).send(error.message);
     } else {
+      console.log('error', error);
       res.status(500).send("Internal server error");
     }
   }
