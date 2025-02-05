@@ -21,7 +21,6 @@ export const getToken = function (data: { [key: string]: string | boolean | numb
 
 export const verifyRequestToken = function (request: BankRequest): boolean {
   const { Token, ...rest} = request;
-  console.log(rest);
   const verifiedToken = getToken(rest);
   return verifiedToken === Token;
 };
