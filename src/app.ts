@@ -13,6 +13,7 @@ import clientRouter from "./routes/client";
 const PORT = 3002;
 const INTERFACE = "localhost";
 const frontendOrigin = "http://localhost:5173";
+// const frontendOrigin = "https://chernuhino.ru";
 // создаю веб-сервер >>>>>>>>>>>>>>
 const app = express();
 // Set up CORS to allow requests from your frontend (localhost:5173)
