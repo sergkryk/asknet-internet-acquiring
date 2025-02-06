@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { verifyRequestToken } from "../utils/token";
 import { dbClient, PaymentStatusNumeric, StoredPayment } from "../services/db/db-client";
 import NodeSoap from "../soap/soap";
 import { PaymentStatus } from "../services/tpayments/tpayments";
 
 // class to handle http errors
-class HttpError extends Error {
+export class HttpError extends Error {
   httpStatusCode: number;
   constructor(message: string, httpStatusCode: number) {
     super(message);
@@ -141,7 +141,7 @@ export const tbankPostController = async function ( req: Request, res: Response 
     } else {
       // Handle unexpected errors and send a generic internal server error
       console.log('error', error);
-      res.status(500).send("Internal server error");
+      res.status(500).send("Internal unexpected server error");
     }
   }
 };
