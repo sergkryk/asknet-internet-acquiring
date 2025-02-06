@@ -69,7 +69,7 @@ async function initSoapClient(): Promise<NodeSoap> {
     });
     return soap;
   } catch (error) {
-    throw new HttpError("Failed to authentikate db client", 400)
+    throw new HttpError("Failed to authenticate db client", 400)
   }
 }
 // function to fetch local payment

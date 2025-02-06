@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import NodeSoap from "../soap/soap";
 import { SoapAccount, SoapAddressBrief, SoapAgreement, SoapClientVgroupFull } from "../soap/types";
-
+import { HttpError } from "./tbank";
+// Frontend response types
 interface FrontendVgroupsResponse {
   vgroup: {
     vgid?: number;
@@ -41,12 +42,12 @@ interface FrontedResponse {
   agreements: FrontedAgreementResponse;
   vgroups: FrontendVgroupsResponse[];
 }
-// оставляет только нужные поля для отправки на портал абонента
+// Filter to send only necessary object keys
 const filterAgreementFields = (candidate: SoapAgreement): FrontedAgreementResponse => {
   const { agrmid, vgroups, balance, credit, number, date, operid } = candidate;
   return { agrmid, vgroups, balance, credit, number, date, operid };
 }
-// оставляет только нужные поля для отправки на портал абонента
+// Filter to send only necessary object keys
 function filterVgroupsFields(candidate: SoapClientVgroupFull[]): FrontendVgroupsResponse[] {
   const result: FrontendVgroupsResponse[] = []
   for (let i = 0; i < candidate.length; i++) {
@@ -68,7 +69,7 @@ function filterVgroupsFields(candidate: SoapClientVgroupFull[]): FrontendVgroups
   }
   return result;
 }
-// оставляет только нужные поля для отправки на портал абонента
+// Filter to send only necessary object keys
 function filterAccountFields(candidate: SoapAccount): FrontendAccountResponse {
   const { uid, name, phone, email, login, pass, passissuedate, passissuedep, passissueplace, passno, passsernum } = candidate;
   return {
@@ -81,90 +82,77 @@ function filterAccountFields(candidate: SoapAccount): FrontendAccountResponse {
     isPassport: passissuedate && passissuedep && passissueplace && passno && passsernum ? true : false
   }
 }
-// проверяет корректность ответа от сервиса
+// Validate soap response
 function validateAccountResponse(candidate: any): boolean {
-  const checks = [
-    Array.isArray(candidate),
-    candidate.length > 0,
-    candidate.every((item: any) => 'account' in item),
-  ]
-  return checks.every(el => el);
+  return Array.isArray(candidate) && candidate.length > 0 && candidate.every((item: any) => 'account' in item)
 }
-// проверяет корректность ответа от сервиса
+// Validate soap response
 function validateVgroupsResponse(candidate: any): boolean {
-  const checks = [
-    Array.isArray(candidate),
-    candidate.length >= 0,
-  ]
-  return checks.every(el => el);
+  return Array.isArray(candidate) && candidate.length >= 0
 }
-// получает данные абонента из сервиса
-async function getClientData(params: string | { login: string, pass: string }): Promise<[user: FrontedResponse, soap: NodeSoap ]> {
-  const soap = await NodeSoap.init();
-  if (typeof params === 'string') {
-    soap.setHttpCookie(params);
-  } else {
-    await soap.clientLogin(params);
+// Client data fetch and validation
+async function getClientData(params: string | { login: string, pass: string }): Promise<[user: FrontedResponse, soap: NodeSoap]> {
+  try {
+    const soap = await NodeSoap.init();
+    if (typeof params === 'string') {
+      soap.setHttpCookie(params);
+    } else {
+      await soap.clientLogin(params);
+    }
+    const account = await soap.getClientAccount();
+    if (!validateAccountResponse(account)) {
+      throw new HttpError("Invalid account response", 400);
+    }
+    const vgroups = await soap.getClientVgroups();
+    if (!validateVgroupsResponse(vgroups)) {
+      throw new HttpError("Invalid vgroups response", 400);
+    }
+    const frontendAccount = filterAccountFields(account[0].account);
+    const frontendAgreements = filterAgreementFields(account[0].agreements[0])
+    const frontendVgroups = filterVgroupsFields(vgroups)
+    return [{ account: frontendAccount, agreements: frontendAgreements, vgroups: frontendVgroups }, soap];
+  } catch (error) {
+    throw new HttpError("Client data fetch failed", 400)
   }
-  const account = await soap.getClientAccount();
-  if (!validateAccountResponse(account)) {
-    throw new Error("Invalid account response");
-  }
-  const vgroups = await soap.getClientVgroups();
-  if (!validateVgroupsResponse(vgroups)) {
-    throw new Error("Invalid vgroups response");
-  }
-  const frontendAccount = filterAccountFields(account[0].account);
-  const frontendAgreements = filterAgreementFields(account[0].agreements[0])
-  const frontendVgroups = filterVgroupsFields(vgroups)
-  return [{ account: frontendAccount, agreements: frontendAgreements, vgroups: frontendVgroups }, soap ];
 }
-// устанавливает куку в браузер абонента для авторизации на портале абонента
+// Sets authentication cookies received from soap into browser 
 function setAuthenticatedCookieToClient(res: Response, cookie: string): void {
   const [sessnum, domain, path, version, maxAge] = cookie.split(';');
   res.setHeader('Set-Cookie', `${sessnum};${path};${version};${maxAge}`);
 }
-// отправляет данные абонента на портал
+// Send data to client portal
 function sendClientData(res: Response, account: FrontedResponse): void {
   res.status(200).json(account);
 }
-// проверяет корректность введенных данных
+// Validates credentials
 function validateCredentials(req: Request, res: Response): Response | void {
   const { login, password } = req.body;
-  if (!login || !password) {
-    return res.status(400).json({ error: "Invalid request body format" });
-  }
-  if (login.length < 4) {
-    return res.status(400).json({ error: "Login must be at least 4 characters long" });
-  }
-  if (password.length < 6) {
-    return res.status(400).json({ error: "Password must be at least 6 characters long" });
-  }
-  if (!/^[a-zA-Z0-9]+$/.test(password)) {
-    return res.status(400).json({ error: "Password can only contain letters and numbers" });
-  }
+  if (!login || !password) throw new HttpError("Invalid request body format", 400);
+  if (login.length < 4) throw new HttpError("Login must be at least 4 characters long", 400);
+  if (password.length < 6) throw new HttpError("Password must be at least 6 characters long", 400);
+  if (!/^[a-zA-Z0-9]+$/.test(password)) throw new HttpError("Password can only contain letters and numbers", 400);
 }
-// проверяет наличие куки в запросе
+// check if cookie present
 function validateRequestCookie(req: Request, res: Response): Response | string {
   if (!req.headers.cookie) {
-    return res.status(401).json({ error: "Unauthorized" });
+    throw new HttpError("Authorise before requesting data", 401)
   } else {
     return req.headers.cookie;
   }
 }
-// обрабатывает ошибки
+// handle errors
 function handleError(res: Response, error: any): Response {
-  if (error instanceof Error) {
-    return res.status(500).json({ error: error.message });
-  } else {
-    return res.status(500).json({ error: "Internal Server Error" });
+    if (error instanceof HttpError) {
+      return res.status(error.httpStatusCode).send(error.message);
+    } else {
+      return res.status(500).send("An unexpected error occurred. Please try again later.");
+    }
   }
-}
 // GET controller
 export const clientGetController = async function (req: Request, res: Response) {
   try {
     const sessnum = validateRequestCookie(req, res);
-    const [ account ] = await getClientData(sessnum as string);
+    const [account] = await getClientData(sessnum as string);
     sendClientData(res, account);
   } catch (error) {
     handleError(res, error);
@@ -174,7 +162,7 @@ export const clientGetController = async function (req: Request, res: Response) 
 export const clientPostController = async function (req: Request, res: Response) {
   try {
     validateCredentials(req, res);
-    const [ account, soap ] = await getClientData({ login: req.body.login, pass: req.body.password });
+    const [account, soap] = await getClientData({ login: req.body.login, pass: req.body.password });
     const cookie = soap.getHttpHeaders()?.['set-cookie'];
     setAuthenticatedCookieToClient(res, cookie[0]);
     sendClientData(res, account);

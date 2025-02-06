@@ -51,8 +51,9 @@ export const paymentController = async function (req: Request, res: Response) {
       OrderId: generateOrderId(AgrmId),
       TerminalKey: getOperatorTerminalKey(OperId)
     }
-    // Initialize the payment and insert into the database
+    // Initialize the payment with Tbank remote server
     const newPayment = await initPayment(PaymentRequestBody);
+    // Store payment copy to local db with AgrmId for further payment processing 
     await dbClient.insertPayment({ ...newPayment, AgrmId });
     // Return the payment URL in the response
     return res.status(200).json({
