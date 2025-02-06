@@ -26,119 +26,126 @@ export interface BankRequest {
   ExpDate: string;
   Token: string;
 };
-// function to check if the request body is a BankRequest
+// Function to check if the request body is a BankRequest
 function isBankRequest(request: any): void {
   const checks = [
-    typeof request === "object",
-    request !== null,
-    typeof request.TerminalKey === "string",
-    typeof request.OrderId === "string",
-    typeof request.Success === "boolean",
-    typeof request.Status === "string",
-    typeof request.PaymentId === "number",
-    typeof request.ErrorCode === "string",
-    typeof request.Amount === "number",
-    typeof request.CardId === "number",
-    typeof request.Pan === "string",
-    typeof request.ExpDate === "string",
-    typeof request.Token === "string"
-  ]
-  if (!checks.every(check => check)) {
-    const error = new HttpError("Invalid request body", 400);
-    throw error;
-  };
-}
-// function to check if token is valid
-function isTokenValid(bankRequest: BankRequest): void {
-  if (!verifyRequestToken(bankRequest)) {
-    const error = new HttpError("Invalid request token", 400);
-    throw error;
+    "object" === typeof request && request !== null,
+    "string" === typeof request.TerminalKey,
+    "string" === typeof request.OrderId,
+    "boolean" === typeof request.Success,
+    "string" === typeof request.Status,
+    "number" === typeof request.PaymentId,
+    "string" === typeof request.ErrorCode,
+    "number" === typeof request.Amount,
+    "number" === typeof request.CardId,
+    "string" === typeof request.Pan,
+    "string" === typeof request.ExpDate,
+    "string" === typeof request.Token,
+  ];
+
+  if (!checks.every(Boolean)) {
+    throw new HttpError("Invalid request body", 400);
+  }
+  if (!verifyRequestToken(request)) {
+    throw new HttpError("Invalid request token", 400);
   }
 }
-// function to compare local and remote payment
+// Function to compare local and remote payment
 function compareLocalAndRemotePayment(localPayment: StoredPayment, remotePayment: BankRequest): void {
-  if (localPayment.amount !== remotePayment.Amount) {
-    throw new HttpError("Amount mismatch", 400);
-  }
-  if (Number(localPayment.payment_id) !== remotePayment.PaymentId) {
-    throw new HttpError("Payment ID mismatch", 400);
+  if (localPayment.amount !== remotePayment.Amount || Number(localPayment.payment_id) !== remotePayment.PaymentId) {
+    throw new HttpError("Payment mismatch", 400);
   }
 }
 // function to init and auth soap client
 async function initSoapClient(): Promise<NodeSoap> {
-  if (!process.env.BILLING_LOGIN || !process.env.BILLING_PASSWORD) {
-    throw new Error("Billing login or password is not set");
+  try {
+    if (!process.env.BILLING_LOGIN || !process.env.BILLING_PASSWORD) {
+      throw new HttpError("Billing login or password is not set", 400);
+    }
+    const soap = await NodeSoap.init();
+    await soap.login({
+      login: process.env.BILLING_LOGIN,
+      pass: process.env.BILLING_PASSWORD
+    });
+    return soap;
+  } catch (error) {
+    throw new HttpError("Failed to authentikate db client", 400)
   }
-  const soap = await NodeSoap.init();
-  await soap.login({
-    login: process.env.BILLING_LOGIN,
-    pass: process.env.BILLING_PASSWORD
-  });
-  return soap;
 }
 // function to fetch local payment
 async function fetchLocalPayment(paymentId: string): Promise<StoredPayment> {
-  const result = await dbClient.getPayment(paymentId);
-  if (result === null) {
-    throw new HttpError("Payment not found", 400);
+  try {
+    const result = await dbClient.getPayment(paymentId);
+    if (result === null) {
+      throw new HttpError("Payment not found", 400);
+    }
+    return result;
+  } catch (error) {
+    throw new HttpError("DB payment request failed", 400)
   }
-  return result;
+}
+// Utility to handle common status update logic
+async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPayment: StoredPayment): Promise<void> {
+  const { AUTHORIZED, CONFIRMED, REFUNDED, REJECTED } = PaymentStatus;
+  const { NEW: NEW_NUMERIC, CONFIRMED: CONFIRMED_NUMERIC, REJECTED: REJECTED_NUMERIC } = PaymentStatusNumeric;
+
+  switch (remotePayment.Status) {
+    case AUTHORIZED:
+      // No action for AUTHORIZED
+      break;
+    case CONFIRMED:
+      if (NEW_NUMERIC === localPayment.status_id) {
+        const soap = await initSoapClient();
+        await soap.submitPayment({
+          amount: remotePayment.Amount,
+          receipt: `${remotePayment.PaymentId}`,
+          agrmid: localPayment.agrmid,
+        });
+        await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, CONFIRMED_NUMERIC);
+      }
+      break;
+    case REFUNDED:
+      if (CONFIRMED_NUMERIC === localPayment.status_id) {
+        // TODO: Implement refund process
+        await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, PaymentStatusNumeric.REFUNDED);
+      }
+      break;
+    case REJECTED:
+      if (NEW_NUMERIC === localPayment.status_id) {
+        await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, REJECTED_NUMERIC);
+      }
+      break;
+  }
 }
 
 // POST controller
-export const tbankPostController = async function (
-  req: Request,
-  res: Response
-) {
+export const tbankPostController = async function ( req: Request, res: Response ) {
   try {
-    console.log('req.body', req.body);
+    // Validate the request body and ensure it meets expected format
     isBankRequest(req.body);
-    isTokenValid(req.body);
+    // Extract remote payment data from the request body
     const remotePayment = req.body;
+    // Fetch the corresponding payment record from the local database
     const localPayment = await fetchLocalPayment(`${remotePayment.PaymentId}`);
+    // Compare local and remote payment details to ensure they match
     compareLocalAndRemotePayment(localPayment, remotePayment);
-    const { AUTHORIZED, CONFIRMED, REFUNDED, REJECTED } = PaymentStatus;
-    switch (remotePayment.Status) {
-      case AUTHORIZED:
-        // do nothing, authorized status is ignored
-        break;
-      case CONFIRMED:
-        // check if local payment has new status
-        if (PaymentStatusNumeric.NEW === localPayment.status_id) {
-          // init soap client
-          const soap = await initSoapClient();
-          // submit payment to billing
-          const confirmedPaymentRecordId = await soap.submitPayment({
-            amount: remotePayment.Amount,
-            receipt: `${remotePayment.PaymentId}`,
-            agrmid: localPayment.agrmid,
-          });
-          // update local payment status
-          await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, PaymentStatusNumeric.CONFIRMED);
-        }
-        break;
-      case REFUNDED:
-        if (PaymentStatusNumeric.CONFIRMED === localPayment.status_id) {
-          // TODO: write function to refund payment from billing
-          await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, PaymentStatusNumeric.REFUNDED);
-        }
-        break;
-      case REJECTED:
-        if (PaymentStatusNumeric.NEW === localPayment.status_id) {
-          await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, PaymentStatusNumeric.REJECTED);
-        }
-        break;
-    }
+    // Process payment status updates based on the remote payment status
+    await handlePaymentStatusUpdate(remotePayment, localPayment);
+    // Send a successful response to the tbank system
     res.status(200).send("OK");
   } catch (error) {
+    // Handle known errors (HttpError) and send appropriate status codes
     if (error instanceof HttpError) {
       console.log('error', error);
       res.status(error.httpStatusCode).send(error.message);
     } else {
+      // Handle unexpected errors and send a generic internal server error
       console.log('error', error);
       res.status(500).send("Internal server error");
     }
   }
 };
+
+
 
 
