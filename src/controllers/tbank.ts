@@ -86,6 +86,11 @@ async function fetchLocalPayment(paymentId: string): Promise<StoredPayment> {
 }
 // function to verify the payment before cancel
 function isPaymentWithPay(payment: any): payment is { pay: { receipt: string; agrmid: number; recordid: number } } {
+  console.log(payment !== null && 'pay' in payment)
+  console.log(['receipt', 'agrmid', 'recordid'].every(el => el in payment.pay))
+  console.log('string' === payment.pay.receipt)
+  console.log('number' === payment.pay.agrmid)
+  console.log('number' === payment.pay.recordid)
   return payment !== null &&
     'pay' in payment &&
     ['receipt', 'agrmid', 'recordid'].every(el => el in payment.pay) &&
@@ -115,14 +120,10 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
       }
       break;
     case REFUNDED:
-      console.log('refunded started')
       if (CONFIRMED_NUMERIC === localPayment.status_id) {
-        console.log('refunded started #2')
         const soap = await initSoapClient();
         const payment = await soap.getExactPaymentByReceipt(localPayment.payment_id);
-        console.log(payment)
         if (isPaymentWithPay(payment)) {
-          console.log('refunded started #2')
           const { receipt, agrmid, recordid } = payment.pay
           await soap.cancelPayment({
             receipt,
