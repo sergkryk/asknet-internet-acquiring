@@ -140,6 +140,7 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
 // POST controller
 export const tbankPostController = async function (req: Request, res: Response) {
   try {
+    console.log(req.body)
     // Validate the request body and ensure it meets expected format
     isBankRequest(req.body);
     // Extract remote payment data from the request body
