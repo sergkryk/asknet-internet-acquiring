@@ -24,12 +24,15 @@ function getOperatorTerminalKey(operid: number): string {
 }
 // Validate the payment request body
 function isPaymentBodyValid(body: any): body is IPaymentBody {
-  console.log(body)
+  // console.log(typeof body.AgrmId === "number")
+  // console.log(typeof body.OperId === "number")
+  // console.log(typeof body.Amount === "number")
+  // console.log(body.Amount > 100 && body.Amount < 10000)
   return (
     typeof body.AgrmId === "number" &&
     typeof body.OperId === "number" &&
     typeof body.Amount === "number" &&
-    body.Amount > 100 && body.Amount < 10000 &&
+    body.Amount >= 100 && body.Amount <= 10000 &&
     body.OperId in operatorTerminalKeys
   );
 }
