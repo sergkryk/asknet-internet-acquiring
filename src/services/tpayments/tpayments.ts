@@ -1,7 +1,6 @@
 import { postJsonWithToken } from "../../utils/http";
 
 const URL = process.env.TPAYMENTS_URL || "https://securepay.tinkoff.ru/v2/Init";
-
 export enum PaymentStatus {
   NEW = 'NEW',
   AUTHORIZED = 'AUTHORIZED',
@@ -9,13 +8,11 @@ export enum PaymentStatus {
   REFUNDED = 'REFUNDED',
   REJECTED = 'REJECTED',
 }
-
 export interface IPaymentRequestBody {
   TerminalKey: string; // Required, max 20 characters
   Amount: number; // Required, max 10 characters
   OrderId: string; // Required, max 36 characters
 }
-
 // Interface to validate bank response structure
 interface InitNewPaymentResponse {
   Success: boolean,
@@ -27,7 +24,6 @@ interface InitNewPaymentResponse {
   Amount: number,
   PaymentURL: string
 }
-
 // Function to validate bank response structure
 function isInitNewPaymentResponse(response: any): response is InitNewPaymentResponse {
   return (
@@ -42,14 +38,14 @@ function isInitNewPaymentResponse(response: any): response is InitNewPaymentResp
     PaymentStatus[response.Status as keyof typeof PaymentStatus] !== undefined
   );
 }
-
 // Function to check if payment initialization was successful
 function isInitSuccessful(response: any): response is InitNewPaymentResponse {
   return response.Success === true;
 }
-
 // Function to initialize payment
 export const initPayment = async function (paymentRequestBody: IPaymentRequestBody): Promise<InitNewPaymentResponse> {
+  // convert amount in rubles into kopecks
+  paymentRequestBody.Amount = paymentRequestBody.Amount*100
   const initRequest = await postJsonWithToken(URL, paymentRequestBody);
   if (isInitNewPaymentResponse(initRequest) && isInitSuccessful(initRequest)) {
     return initRequest

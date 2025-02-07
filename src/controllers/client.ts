@@ -112,7 +112,7 @@ async function getClientData(params: string | { login: string, pass: string }): 
     const frontendVgroups = filterVgroupsFields(vgroups)
     return [{ account: frontendAccount, agreements: frontendAgreements, vgroups: frontendVgroups }, soap];
   } catch (error) {
-    throw new HttpError("Client data fetch failed", 400)
+    throw new HttpError("Login or pass not recognized", 401)
   }
 }
 // Sets authentication cookies received from soap into browser 

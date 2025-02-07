@@ -52,7 +52,7 @@ function isBankRequest(request: any): void {
 }
 // Function to compare local and remote payment
 function compareLocalAndRemotePayment(localPayment: StoredPayment, remotePayment: BankRequest): void {
-  if (localPayment.amount !== remotePayment.Amount || Number(localPayment.payment_id) !== remotePayment.PaymentId) {
+  if (localPayment.amount !== (remotePayment.Amount/100) || Number(localPayment.payment_id) !== remotePayment.PaymentId) {
     throw new HttpError("Payment mismatch", 400);
   }
 }
