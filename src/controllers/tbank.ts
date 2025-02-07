@@ -86,19 +86,12 @@ async function fetchLocalPayment(paymentId: string): Promise<StoredPayment> {
 }
 // function to verify the payment before cancel
 function isPaymentWithPay(payment: any): payment is { pay: { receipt: string; agrmid: number; recordid: number } } {
-  console.log(payment !== null && 'pay' in payment)
-  console.log(['receipt', 'agrmid', 'recordid'].every(el => el in payment.pay))
-  console.log('string' === payment.pay.receipt)
-  console.log(payment.pay.receipt)
-  console.log(typeof(payment.pay.receipt))
-  console.log('number' === payment.pay.agrmid)
-  console.log('number' === payment.pay.recordid)
   return payment !== null &&
     'pay' in payment &&
     ['receipt', 'agrmid', 'recordid'].every(el => el in payment.pay) &&
-    'string' === payment.pay.receipt &&
-    'number' === payment.pay.agrmid &&
-    'number' === payment.pay.recordid
+    'string' === typeof(payment.pay.receipt) &&
+    'number' === typeof(payment.pay.agrmid) &&
+    'number' === typeof(payment.pay.recordid)
 }
 // Utility to handle common status update logic
 async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPayment: StoredPayment): Promise<void> {
