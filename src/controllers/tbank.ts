@@ -140,7 +140,6 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
 // POST controller
 export const tbankPostController = async function (req: Request, res: Response) {
   try {
-    console.log(req.body)
     // Validate the request body and ensure it meets expected format
     isBankRequest(req.body);
     // Extract remote payment data from the request body
@@ -156,11 +155,9 @@ export const tbankPostController = async function (req: Request, res: Response) 
   } catch (error) {
     // Handle known errors (HttpError) and send appropriate status codes
     if (error instanceof HttpError) {
-      console.log('error', error);
       res.status(error.httpStatusCode).send(error.message);
     } else {
       // Handle unexpected errors and send a generic internal server error
-      console.log('error', error);
       res.status(500).send("Internal unexpected server error");
     }
   }
