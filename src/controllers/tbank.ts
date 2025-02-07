@@ -89,6 +89,8 @@ function isPaymentWithPay(payment: any): payment is { pay: { receipt: string; ag
   console.log(payment !== null && 'pay' in payment)
   console.log(['receipt', 'agrmid', 'recordid'].every(el => el in payment.pay))
   console.log('string' === payment.pay.receipt)
+  console.log(payment.pay.receipt)
+  console.log(typeof(payment.pay.receipt))
   console.log('number' === payment.pay.agrmid)
   console.log('number' === payment.pay.recordid)
   return payment !== null &&
