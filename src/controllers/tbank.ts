@@ -145,10 +145,8 @@ export const tbankPostController = async function (req: Request, res: Response) 
     isBankRequest(req.body);
     // Extract remote payment data from the request body
     const remotePayment = req.body;
-    console.log('оплата из банка', remotePayment)
     // Fetch the corresponding payment record from the local database
     const localPayment = await fetchLocalPayment(`${remotePayment.PaymentId}`);
-    console.log('оплата из базы данных', localPayment)
     // Compare local and remote payment details to ensure they match
     compareLocalAndRemotePayment(localPayment, remotePayment);
     // Process payment status updates based on the remote payment status
