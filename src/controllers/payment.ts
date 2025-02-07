@@ -24,6 +24,7 @@ function getOperatorTerminalKey(operid: number): string {
 }
 // Validate the payment request body
 function isPaymentBodyValid(body: any): body is IPaymentBody {
+  console.log(body)
   return (
     typeof body.AgrmId === "number" &&
     typeof body.OperId === "number" &&
