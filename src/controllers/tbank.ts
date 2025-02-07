@@ -84,6 +84,15 @@ async function fetchLocalPayment(paymentId: string): Promise<StoredPayment> {
     throw new HttpError("DB payment request failed", 400)
   }
 }
+// function to verify the payment before cancel
+function isPaymentWithPay(payment: any): payment is { pay: { receipt: string; agrmid: number; recordid: number } } {
+  return payment !== null &&
+    'pay' in payment &&
+    ['receipt', 'agrmid', 'recordid'].every(el => el in payment.pay) &&
+    'string' === payment.pay.receipt &&
+    'number' === payment.pay.agrmid &&
+    'number' === payment.pay.recordid
+}
 // Utility to handle common status update logic
 async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPayment: StoredPayment): Promise<void> {
   const { AUTHORIZED, CONFIRMED, REFUNDED, REJECTED } = PaymentStatus;
@@ -98,7 +107,7 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
         const soap = await initSoapClient();
         await soap.submitPayment({
           // convert kopecks into rubles to make payment in Lanbilling
-          amount: Number(remotePayment.Amount)/100,
+          amount: Number(remotePayment.Amount) / 100,
           receipt: `${remotePayment.PaymentId}`,
           agrmid: localPayment.agrmid,
         });
@@ -107,7 +116,17 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
       break;
     case REFUNDED:
       if (CONFIRMED_NUMERIC === localPayment.status_id) {
-        // TODO: Implement refund process
+        const soap = await initSoapClient();
+        const payment = await soap.getExactPaymentByReceipt(localPayment.payment_id);
+        console.log(payment)
+        if (isPaymentWithPay(payment)) {
+          const { receipt, agrmid, recordid } = payment.pay
+          await soap.cancelPayment({
+            receipt,
+            agrmid,
+            recordid
+          })
+        }
         await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, PaymentStatusNumeric.REFUNDED);
       }
       break;
@@ -120,7 +139,7 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
 }
 
 // POST controller
-export const tbankPostController = async function ( req: Request, res: Response ) {
+export const tbankPostController = async function (req: Request, res: Response) {
   try {
     // Validate the request body and ensure it meets expected format
     isBankRequest(req.body);
