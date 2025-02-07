@@ -29,7 +29,7 @@ function isPaymentBodyValid(body: any): body is IPaymentBody {
     typeof body.AgrmId === "number" &&
     typeof body.OperId === "number" &&
     typeof body.Amount === "number" &&
-    body.Amount > 10000 && body.Amount < 1000000 &&
+    body.Amount > 100 && body.Amount < 10000 &&
     body.OperId in operatorTerminalKeys
   );
 }
