@@ -115,11 +115,14 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
       }
       break;
     case REFUNDED:
+      console.log('refunded started')
       if (CONFIRMED_NUMERIC === localPayment.status_id) {
+        console.log('refunded started #2')
         const soap = await initSoapClient();
         const payment = await soap.getExactPaymentByReceipt(localPayment.payment_id);
         console.log(payment)
         if (isPaymentWithPay(payment)) {
+          console.log('refunded started #2')
           const { receipt, agrmid, recordid } = payment.pay
           await soap.cancelPayment({
             receipt,
@@ -143,7 +146,6 @@ export const tbankPostController = async function (req: Request, res: Response) 
   try {
     console.log(req.body)
     // Validate the request body and ensure it meets expected format
-    console.log(isBankRequest(req.body))
     isBankRequest(req.body);
     // Extract remote payment data from the request body
     const remotePayment = req.body;
