@@ -48,7 +48,7 @@ export const paymentController = async function (req: Request, res: Response) {
     // Create the payment request body
     const PaymentRequestBody: IPaymentRequestBody = {
       // convert rubles into kopecks as Tbank API requires 
-      Amount: Number(Amount)*100,
+      Amount: Math.floor(Number(Amount)*100),
       OrderId: generateOrderId(AgrmId),
       TerminalKey: getOperatorTerminalKey(OperId)
     }
