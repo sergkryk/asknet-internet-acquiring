@@ -44,8 +44,6 @@ function isInitSuccessful(response: any): response is InitNewPaymentResponse {
 }
 // Function to initialize payment
 export const initPayment = async function (paymentRequestBody: IPaymentRequestBody): Promise<InitNewPaymentResponse> {
-  // convert amount in rubles into kopecks
-  paymentRequestBody.Amount = Number(paymentRequestBody.Amount)*100
   const initRequest = await postJsonWithToken(URL, paymentRequestBody);
   if (isInitNewPaymentResponse(initRequest) && isInitSuccessful(initRequest)) {
     return initRequest

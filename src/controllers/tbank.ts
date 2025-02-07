@@ -97,7 +97,8 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
       if (NEW_NUMERIC === localPayment.status_id) {
         const soap = await initSoapClient();
         await soap.submitPayment({
-          amount: remotePayment.Amount,
+          // convert kopecks into rubles to make payment in Lanbilling
+          amount: Number(remotePayment.Amount)/100,
           receipt: `${remotePayment.PaymentId}`,
           agrmid: localPayment.agrmid,
         });
