@@ -1,11 +1,11 @@
+import { BankRequestCandidate } from "../services/tpayments/tpayments";
 import { getToken } from "./token";
+
 
 // general function to make post requests
 export const postJson = async function (
   url: string,
-  data: {
-    [key: string]: any;
-  }
+  data: any
 ) {
   try {
     const response = await fetch(url, {
@@ -29,12 +29,9 @@ export const postJson = async function (
 // general function to make post requests and sign it with token
 export const postJsonWithToken = async function (
   url: string,
-  data: {
-    [key: string]: any;
-  }
+  data: BankRequestCandidate
 ) {
-  const token = getToken(data);
-  const dataWithToken = { ...data, Token: token };
+  const dataWithToken = getToken(data);
   const response = await postJson(url, dataWithToken);
   return response;
 };

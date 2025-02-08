@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-// import NodeSoap from "./soap/soap";
 import dotenv from "dotenv";
 // загружаю переменные из файла .env
 dotenv.config();
@@ -8,12 +7,13 @@ dotenv.config();
 import tbankRouter from "./routes/tbank";
 import paymentRouter from "./routes/payment";
 import clientRouter from "./routes/client";
-// import { handleError } from "./utils/errorHadler";
+import { envValidationMiddleware } from "./middleware/envVariablesCheck";
 // переменные для порта и адреса для expressjs
 const PORT = 3002;
-const INTERFACE = "127.0.0.1";
-// const frontendOrigin = "http://localhost:5173";
-const frontendOrigin = "https://chernuhino.ru";
+// const INTERFACE = "localhost"; // dev
+// const frontendOrigin = "http://localhost:5173"; //dev
+const INTERFACE = "127.0.0.1"; // prod
+const frontendOrigin = "https://chernuhino.ru"; // prod
 // создаю веб-сервер >>>>>>>>>>>>>>
 const app = express();
 // Set up CORS to allow requests from your frontend (localhost:5173)
@@ -24,6 +24,7 @@ const corsOptions = {
   credentials: true,  // Allow cookies/credentials to be sent if necessary
 };
 app.use(cors(corsOptions));
+app.use(envValidationMiddleware)
 // подключаю миддлеваре >>>>>>>>>>>>>>
 app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
@@ -36,33 +37,5 @@ async function main() {
   app.listen(PORT, INTERFACE, () => {
     console.log(`The server started on ${INTERFACE} port ${PORT}`);
   });
-
-  try {
-    // const soap = await NodeSoap.init();
-    // const login = await soap.login({
-    //   login: process.env.BILLING_LOGIN || "",
-    //   pass: process.env.BILLING_PASS || "",
-    // });
-    // const tarifs = await soap.getTarifs();
-    // console.log(tarifs);
-
-    // const newPayment = await soap.submitPayment({
-    //   agrmid: 2930,
-    //   amount: 10,
-    //   receipt: '5746329733',
-    // });
-    // console.log(newPayment);
-
-    // const canceledPayment = await soap.cancelPayment({
-    //     agrmid: 2930,
-    //     recordid: 46112,
-    //     receipt: '5746329733',
-    //   });
-    // console.log(canceledPayment);
-
-  } catch (error) {
-    // handleError(error);
-  }
 }
-
 main();

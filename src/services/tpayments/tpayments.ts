@@ -1,4 +1,5 @@
 import { postJsonWithToken } from "../../utils/http";
+import { Operators } from "../../utils/token";
 
 const URL = process.env.TPAYMENTS_URL || "https://securepay.tinkoff.ru/v2/Init";
 export enum PaymentStatus {
@@ -8,8 +9,12 @@ export enum PaymentStatus {
   REFUNDED = 'REFUNDED',
   REJECTED = 'REJECTED',
 }
-export interface IPaymentRequestBody {
-  TerminalKey: string; // Required, max 20 characters
+export interface BankRequestCandidate {
+  OperId: Operators,
+  [key: string]: number | string | boolean 
+}
+
+export interface IPaymentRequestBody extends BankRequestCandidate {
   Amount: number; // Required, max 10 characters
   OrderId: string; // Required, max 36 characters
 }
@@ -44,6 +49,7 @@ function isInitSuccessful(response: any): response is InitNewPaymentResponse {
 }
 // Function to initialize payment
 export const initPayment = async function (paymentRequestBody: IPaymentRequestBody): Promise<InitNewPaymentResponse> {
+  console.log(paymentRequestBody)
   const initRequest = await postJsonWithToken(URL, paymentRequestBody);
   if (isInitNewPaymentResponse(initRequest) && isInitSuccessful(initRequest)) {
     return initRequest
