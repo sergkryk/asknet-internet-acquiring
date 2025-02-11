@@ -37,7 +37,7 @@ function isBankRequest(request: any): void {
     "number" === typeof request.PaymentId,
     "string" === typeof request.ErrorCode,
     "number" === typeof request.Amount,
-    "number" === typeof request.CardId,
+    // "number" === typeof request.CardId,
     "string" === typeof request.Pan,
     "string" === typeof request.ExpDate,
     "string" === typeof request.Token,
