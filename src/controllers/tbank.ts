@@ -37,9 +37,6 @@ function isBankRequest(request: any): void {
     "number" === typeof request.PaymentId,
     "string" === typeof request.ErrorCode,
     "number" === typeof request.Amount,
-    // "number" === typeof request.CardId,
-    // "string" === typeof request.Pan,
-    // "string" === typeof request.ExpDate,
     "string" === typeof request.Token,
   ];
 
@@ -57,7 +54,7 @@ function compareLocalAndRemotePayment(localPayment: StoredPayment, remotePayment
   }
 }
 // function to init and auth soap client
-async function initSoapClient(): Promise<NodeSoap> {
+export async function initSoapClient(): Promise<NodeSoap> {
   try {
     if (!process.env.BILLING_LOGIN || !process.env.BILLING_PASSWORD) {
       throw new HttpError("Billing login or password is not set", 400);
@@ -140,7 +137,6 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
 // POST controller
 export const tbankPostController = async function (req: Request, res: Response) {
   try {
-    console.log(req.body)
     // Validate the request body and ensure it meets expected format
     isBankRequest(req.body);
     // Extract remote payment data from the request body

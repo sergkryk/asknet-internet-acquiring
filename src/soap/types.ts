@@ -608,7 +608,7 @@ interface SoapClientVgroup {
     blocked?: number; // Corresponds to xsd:long, optional
     changed?: number; // Corresponds to xsd:long, optional
     agentid?: number; // Corresponds to xsd:long, optional
-    tarifid?: number; // Corresponds to xsd:long, optional
+    tarifid: number; // Corresponds to xsd:long, optional
     tariftype?: number; // Corresponds to xsd:long, optional
     curshape?: number; // Corresponds to xsd:long, optional
     usesmartcards?: number; // Corresponds to xsd:long, optional
@@ -778,3 +778,47 @@ export interface SoapClientVgroupFull {
     blockrasp?: SoapBlockRasp[]; // Optional array, corresponds to lbapi:soapBlockRasp
     addresses?: SoapAddressBrief[]; // Optional array, corresponds to lbapi:soapAddressBrief
 }
+export interface SoapServiceCategory {
+    technicalservice?: boolean;            // Флаг «Служебная услуга»
+    beginperiod?: number;                  // Дата начала расчетного периода (0, 1, 2, 3)
+    tarid: number;                         // Идентификатор тарифа
+    catidx: number;                        // Идентификатор категории тарифа (уникален в рамках тарифа)
+    externalservice?: boolean;             // Флаг «Внешняя услуга»
+    uuid: string;                          // Код для связки с внешней системой
+    above: number;                         // Стоимость услуги в валюте тарифа
+    usrblockabove: number;                 // Стоимость при пользовательской блокировке
+    admblockabove: number;                 // Стоимость при административной блокировке
+    permabove: number;                     // Стоимость при финансовой блокировке
+    includeabove: number;                  // Стоимость подключения услуги
+    rentperiod: number;                    // Периодичность списания услуги (0, 1, 2, 3)
+    rentperiodmonth?: number;              // Периодичность списания для настройки «один раз в N месяцев»
+    descr: string;                         // Описание категории
+    archive?: boolean;                     // Флаг «Категория удалена»
+    catid: number;                         // Идентификатор каталога, которому принадлежит запись
+    servcatid: number;                     // Ссылка на каталог
+    isunique: boolean;                     // Флаг «Уникальная услуга»
+    scriptoff?: string;                    // Скрипт при отключении услуги
+    script?: string;                       // Скрипт при назначении услуги
+    link?: string;                         // Ссылка на подробное описание услуги
+    autoassign: number;                    // Флаг автоматического назначения услуги при смене тарифа
+    servtypeid: number;                    // Идентификатор типа услуг
+    servtypename: string;                  // Наименование типа услуг
+    tarname: string;                       // Описание тарифа
+    saledictionaryid?: number;             // Идентификатор услуги, связанной с категорией
+    keepturnedon?: boolean;                // Флаг отключения пакета ЦТВ
+    available?: boolean;                   // Возможность назначать или отменять подписку на сервис в ЛК
+    usrcansetmul?: boolean;                // Возможность изменить количество услуг в ЛК
+    usrmaxmul?: number;                    // Максимальное количество услуг в ЛК
+    dtvtype?: number;                      // Тип услуги ЦТВ (0-8)
+    servicetype: number;                   // Тип услуги (0 — основная, 1 — дополнительная)
+    descrfull?: string;                    // Подробное описание услуги
+    checkactivehours?: boolean;            // Учитывать 12-часовой порог при тарификации
+    externalcharge?: boolean;              // Тип тарификации (внешняя или обычное поведение)
+    currsymbol?: string;                   // Сокращённое обозначение валюты
+    publicoffer?: string;                  // Ссылка на публичную оферту
+    paymentobject?: number;                // Предмет расчёта (для фискализации)
+    promoperiod?: number;                  // Пробный период
+    defaultsubscriptionfee?: boolean;      // Флаг «Абонентская плата по умолчанию»
+    forcedchangedefaultsubscrfee?: boolean; // Принудительно изменить флаг абонентской платы по умолчанию
+    availableformanager?: boolean;         // Менеджеру разрешено управлять услугой
+  }

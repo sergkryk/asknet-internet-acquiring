@@ -61,6 +61,10 @@ export default class NodeSoap {
         const result = await this.baseRequest<SoapPaymentFull[]>(this.client.getPaymentsAsync, { flt: params });
         return result;
     }
+    async getServiceCategories(params: SoapFilter  = {}): Promise<any> {
+        const result = await this.baseRequest<SoapPaymentFull[]>(this.client.getServiceCategoriesAsync, { flt: params });
+        return result;
+    }
     async getExactPaymentByReceipt(receipt: string): Promise<SoapPaymentFull | null> {
         const result = await this.baseRequest<SoapPaymentFull[]>(this.client.getPaymentsAsync, { flt: { receipt } });
         const exactPayment = result.find(el => el.pay.receipt === receipt);
