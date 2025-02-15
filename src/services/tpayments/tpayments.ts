@@ -11,7 +11,7 @@ export enum PaymentStatus {
 }
 export interface BankRequestCandidate {
   OperId: Operators,
-  [key: string]: number | string | boolean 
+  [key: string]: number | string | boolean | {}
 }
 
 export interface IPaymentRequestBody extends BankRequestCandidate {

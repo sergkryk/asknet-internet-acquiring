@@ -7,6 +7,7 @@ dotenv.config();
 import tbankRouter from "./routes/tbank";
 import paymentRouter from "./routes/payment";
 import clientRouter from "./routes/client";
+import modalRouter from "./routes/paymentmodal";
 import { envValidationMiddleware } from "./middleware/envVariablesCheck";
 // переменные для порта и адреса для expressjs
 const PORT = 3002;
@@ -32,6 +33,7 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded data
 app.use("/tbank", tbankRouter);
 app.use("/payment", paymentRouter);
 app.use("/client", clientRouter);
+app.use("/paymentmodal", modalRouter);
 // определяю точку входа
 async function main() {
   app.listen(PORT, INTERFACE, () => {

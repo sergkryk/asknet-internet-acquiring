@@ -3,6 +3,7 @@ import { verifyRequestToken } from "../utils/token";
 import { dbClient, PaymentStatusNumeric, StoredPayment } from "../services/db/db-client";
 import NodeSoap from "../soap/soap";
 import { PaymentStatus } from "../services/tpayments/tpayments";
+import { registerReceipt } from "../services/openClient/openClient";
 
 // class to handle http errors
 export class HttpError extends Error {
@@ -101,14 +102,19 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
       break;
     case CONFIRMED:
       if (NEW_NUMERIC === localPayment.status_id) {
+        // updates payment status and get client phone or email for receipt fz54
+        const updated = await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, CONFIRMED_NUMERIC);
+        // sends payment to tax service to register online check
+        const receipt = await registerReceipt({ clientContact: updated.phone || updated.email, amount: updated.amount, operId: updated.operid })
+        // send payment to billing
         const soap = await initSoapClient();
         await soap.submitPayment({
           // convert kopecks into rubles to make payment in Lanbilling
           amount: Number(remotePayment.Amount) / 100,
           receipt: `${remotePayment.PaymentId}`,
           agrmid: localPayment.agrmid,
+          comment: receipt.receipt_url || "",
         });
-        await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, CONFIRMED_NUMERIC);
       }
       break;
     case REFUNDED:

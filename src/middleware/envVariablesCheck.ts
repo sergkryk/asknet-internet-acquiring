@@ -14,6 +14,10 @@ const requiredEnvVars = [
     'BILLING_URL',
     'BILLING_LOGIN',
     'BILLING_PASSWORD',
+    'ASKNET_OPENCLIENT_APP_ID',
+    'ASKNET_OPENCLIENT_SECRET',
+    'MULTINET_OPENCLIENT_APP_ID',
+    'MULTINET_OPENCLIENT_SECRET'
 ];
 
 function validateEnvVars(): void {

@@ -346,7 +346,6 @@ export interface SoapAccount {
     uid: number; // Required, xsd:long
     type: number; // Required, xsd:long
     login: string; // Required, xsd:string
-
     doctype?: number;
     ipaccess?: number;
     billdelivery?: number;

@@ -102,6 +102,7 @@ function filterAccountFields(candidate: SoapAccount): FrontendAccountResponse {
     uid,
     name,
     phone,
+    mobile,
     email,
     login,
     pass,
@@ -114,7 +115,7 @@ function filterAccountFields(candidate: SoapAccount): FrontendAccountResponse {
   return {
     uid,
     name,
-    phone,
+    phone: phone ? phone : mobile,
     email,
     login,
     pass,
