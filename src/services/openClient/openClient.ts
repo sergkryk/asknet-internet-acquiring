@@ -99,7 +99,7 @@ function buildPrintCheckCommand(
     type: "printCheck",
     app_id: appId,
     nonce: getNonce(),
-    commandBody,
+    command: commandBody,
   };
 }
 // Checks payload before registering receipt
@@ -136,10 +136,12 @@ export const registerReceipt = async function (
   }
   const { amount, clientContact, operId } = payload;
 
+  const amountInRubles = amount / 100;
+
   const { appId, secret } = getOperatorAppIdAndSecret(operId);
   const command = buildPrintCheckCommand(
     appId,
-    getPrintCheckCommand(verifyContactType(clientContact), amount, true)
+    getPrintCheckCommand(verifyContactType(clientContact), amountInRubles, true)
   );
   console.log(command);
   const headers = getSignedHeaders(command, secret);
