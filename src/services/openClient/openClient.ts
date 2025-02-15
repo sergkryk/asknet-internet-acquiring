@@ -141,7 +141,9 @@ export const registerReceipt = async function (
     appId,
     getPrintCheckCommand(verifyContactType(clientContact), amount, true)
   );
+  console.log(command);
   const headers = getSignedHeaders(command, secret);
+  console.log(headers);
   try {
     const request = await fetch(`${OpenApiUrl}Command`, {
       method: "POST",
@@ -155,6 +157,7 @@ export const registerReceipt = async function (
       throw new Error('Something is wrong when registering receipt!')
     }
   } catch (error) {
+    console.log(error);
     throw new Error("Receipt registration failed!");
   }
 };
