@@ -26,9 +26,12 @@ const modalControllerConstructor = function () {
         return res.status(200).json({ status: "shown" });
       }
       const payment = await dbClient.getPayment(paymentId);
+      if (payment === null) {
+        throw new Error('Payment not found')
+      }
       shownPaymentIdSet.add(paymentId);
       counter++; // Увеличиваем счётчик при добавлении в Set
-      res.status(200).json(payment);
+      res.status(200).json({ amount,  paymentId});
     } catch (error) {
       res.status(400);
     }
