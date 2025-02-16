@@ -37,6 +37,7 @@ export interface StoredPayment {
   email: string;
   phone: string;
   operid: Operators;
+  receipt_url: string
 }
 export function isStoredPayment(data: any): data is StoredPayment {
   if (typeof data !== 'object' || data === null) {

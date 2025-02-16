@@ -1,5 +1,5 @@
 import { initSoapClient } from "../controllers/tbank";
-import { SoapServiceCategory } from "../soap/types";
+import { SoapServiceCategory } from "../services/soap/types";
 
 function createTarifsManager() {
     // declares services list
