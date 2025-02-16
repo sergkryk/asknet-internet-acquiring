@@ -125,7 +125,7 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
           comment: receipt.receipt_url || '',
         });
         // updates local payment status and check url
-        Promise.all([
+        await Promise.all([
           dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, CONFIRMED_NUMERIC),
           dbClient.updatePaymentTaxReceipt(`${remotePayment.PaymentId}`, receipt.receipt_url)
         ])
