@@ -13,10 +13,10 @@ import { logRequest } from './services/logger/logger';
 import { handleErrors } from './utils/errorHadler';
 // переменные для порта и адреса для expressjs
 const PORT = 3002;
-const INTERFACE = 'localhost'; // dev
-const frontendOrigin = 'http://localhost:5173'; //dev
-// const INTERFACE = '127.0.0.1'; // prod
-// const frontendOrigin = 'https://chernuhino.ru'; // prod
+// const INTERFACE = 'localhost'; // dev
+// const frontendOrigin = 'http://localhost:5173'; //dev
+const INTERFACE = '127.0.0.1'; // prod
+const frontendOrigin = 'https://chernuhino.ru'; // prod
 // создаю веб-сервер >>>>>>>>>>>>>>
 const app = express();
 // Set up CORS to allow requests from your frontend (localhost:5173)
