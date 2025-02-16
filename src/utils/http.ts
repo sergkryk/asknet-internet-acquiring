@@ -1,4 +1,4 @@
-import { BankRequestCandidate } from "../services/tpayments/tpayments";
+import { BankRequestCandidate } from "../services/tpayments/types";
 import { getToken } from "./token";
 
 

@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import {
   BankRequestCandidate,
-  initPayment,
   IPaymentRequestBody,
-} from "../services/tpayments/tpayments";
+} from "../services/tpayments/types";
 import { dbClient } from "../services/db/db-client";
 import { HttpError } from "./tbank";
 import { Operators } from "../utils/token";
+import { initPayment } from "../services/tpayments/tpayments";
 
 // Interface for the payment request body
 interface IPaymentBody extends BankRequestCandidate {

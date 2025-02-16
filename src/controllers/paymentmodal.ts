@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { dbClient } from "../services/db/db-client";
+import { Request, Response } from 'express';
+import { dbClient } from '../services/db/db-client';
 
 // POST controller
 const modalControllerConstructor = function () {
@@ -16,22 +16,21 @@ const modalControllerConstructor = function () {
 
   const controller = async function (req: Request, res: Response) {
     try {
-      
       // нужно проверить тело запроса
-      
+
       const { status, amount, paymentId } = req.body;
       // Периодическая проверка и сброс, если нужно
       resetSetIfNeeded();
       if (shownPaymentIdSet.has(paymentId)) {
-        return res.status(200).json({ status: "shown" });
+        return res.status(200).json({ status: 'shown' });
       }
       const payment = await dbClient.getPayment(paymentId);
       if (payment === null) {
-        throw new Error('Payment not found')
+        throw new Error('Payment not found');
       }
       shownPaymentIdSet.add(paymentId);
       counter++; // Увеличиваем счётчик при добавлении в Set
-      res.status(200).json({ amount,  paymentId});
+      res.status(200).json({ amount, paymentId });
     } catch (error) {
       res.status(400);
     }
