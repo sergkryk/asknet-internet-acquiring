@@ -66,7 +66,7 @@ class DatabaseClient {
   }
 
   async updatePaymentTaxReceipt(paymentId: string, receiptUrl: string): Promise<StoredPayment> {
-    const query = `UPDATE payments SET tax_receipt = $1 WHERE payment_id = $2 RETURNING *`
+    const query = `UPDATE payments SET receipt_url = $1 WHERE payment_id = $2 RETURNING *`
     const result = await this.pool.query(query, [receiptUrl, paymentId]);
     return result.rows[0];
   }

@@ -34,7 +34,6 @@ const modalControllerConstructor = function () {
 				throw new HttpError(`Wrong request body format`, 400); // validates request body
 			}
 			const { paymentId } = req.body; // declares payment id from body
-			resetSetIfNeeded(); // periodical checking and clearing
 			if (shownPaymentIdSet.has(paymentId)) {
 				return res.status(200).json({ status: 'shown' }); // tells frontend that message was already shown
 			}
@@ -45,6 +44,7 @@ const modalControllerConstructor = function () {
 			const { amount, receipt_url } = payment; // declares variables for modal
 			shownPaymentIdSet.add(paymentId); // adds id to set not to show modal again
 			counter++; // increases counter to prevent max size exeeding
+			resetSetIfNeeded(); // periodical checking and clearing
 			res.status(200).json({ amount, paymentId, receipt_url }); // sends json to frontend
 		} catch (error) {
 			next(error);
