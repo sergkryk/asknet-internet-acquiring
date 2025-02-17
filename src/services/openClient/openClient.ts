@@ -132,9 +132,11 @@ export const registerReceipt = async function (payload: RegisterReceiptPayload):
     appId,
     getPrintCheckCommand(verifiedContact, amount, true)
   );
+  console.log('command', command);
   // signs headers
   const headers = getSignedHeaders(command, secret);
   // prints check request
+  console.log('headers', headers);
   try {
     const request = await fetch(`${OpenApiUrl}Command`, {
       method: 'POST',
@@ -143,10 +145,12 @@ export const registerReceipt = async function (payload: RegisterReceiptPayload):
     });
     if (request.ok) {
       const responseData = await request.json();
-      console.log(responseData);
+      console.log('responseData', responseData);
       return responseData;
     } else {
-      console.log(request);
+      console.log('request', request);
+      const dt = await request.json()
+      console.log('dt', dt);
       throw new HttpError('Something is wrong when registering receipt!', 500);
     }
   } catch (error) {
