@@ -1,5 +1,6 @@
 import { Pool, PoolConfig } from 'pg';
 import { isStoredPayment, PaymentData, PaymentStatusIds, PaymentStatusNumeric, StoredPayment } from './types';
+import { HttpError } from '../../utils/errorHadler';
 
 const poolConfig: PoolConfig = {
   user: process.env.DB_USER,
@@ -14,7 +15,7 @@ class DatabaseClient {
     const requiredEnvVars = ['DB_USER', 'DB_HOST', 'DB_NAME', 'DB_PASSWORD'];
     requiredEnvVars.forEach((varName) => {
       if (!process.env[varName]) {
-        throw new Error(`Cannot connect to database. Environment variable ${varName} is not set.`);
+        throw new HttpError(`Cannot connect to database. Environment variable ${varName} is not set.`, 500);
       }
     });
     this.pool = new Pool(poolConfig);

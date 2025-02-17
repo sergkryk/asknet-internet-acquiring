@@ -1,4 +1,5 @@
 import { BankRequestCandidate } from "../services/tpayments/types";
+import { HttpError } from "./errorHadler";
 import { getToken } from "./token";
 
 
@@ -17,12 +18,13 @@ export const postJson = async function (
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new HttpError(`HTTP error! status: ${response.status}`, 500);
     }
     const responseData = await response.json();
     return responseData;
   } catch (error) {
-    console.error('Error making POST request:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error occured'
+    throw new HttpError(message, 400)
   }
 };
 

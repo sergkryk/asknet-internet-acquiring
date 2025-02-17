@@ -3,6 +3,7 @@ import { PrintCheckCommand, PrintCheckResponse, RegisterReceiptPayload } from '.
 import { Operators } from '../../utils/token';
 import { isValidEmail, isValidPhone } from '../../utils/validators';
 import { phoneNumberFormatter } from '../../utils/prettier';
+import { HttpError } from '../../utils/errorHadler';
 // open API url
 const OpenApiUrl: string = process.env.OPENCLIENT_URL!;
 // Static headers
@@ -28,7 +29,7 @@ function getOperatorAppIdAndSecret(operid: Operators): {
 } {
   const operator = operatorsAppIdAndSecret[operid];
   if (!operator) {
-    throw new Error(`Operator with ID ${operid} not found.`);
+    throw new HttpError(`Operator with ID ${operid} not found.`, 400);
   }
   return operator;
 }
@@ -118,7 +119,7 @@ function verifyContactType(clientContact: string): string {
 export const registerReceipt = async function (payload: RegisterReceiptPayload): Promise<PrintCheckResponse> {
   // check payload
   if (!isRegisterReceiptPayload(payload)) {
-    throw new Error('Cannot register receipt with this payloads!');
+    throw new HttpError('Cannot register receipt with this payloads!', 400);
   }
   // destructures payload to get variables
   const { amount, clientContact, operId } = payload
@@ -144,10 +145,10 @@ export const registerReceipt = async function (payload: RegisterReceiptPayload):
       const responseData = await request.json();
       return responseData;
     } else {
-      throw new Error('Something is wrong when registering receipt!');
+      throw new HttpError('Something is wrong when registering receipt!', 500);
     }
   } catch (error) {
     console.log(error);
-    throw new Error('Receipt registration failed!');
+    throw new HttpError('Receipt registration failed!', 500);
   }
 };

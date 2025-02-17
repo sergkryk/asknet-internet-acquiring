@@ -1,6 +1,7 @@
 import { Client, createClientAsync, IHeaders } from "soap";
 import path from "path";
 import {CancelPaymentParams, ClientLoginParams, LoginParams, SoapAccountFull, SoapClientLogin, SoapClientVgroupFull, SoapFilter, SoapIdName, SoapManagerFull, SoapPayment, SoapPaymentFull, SoapTarifFull, TariffFilter} from "./types";
+import { HttpError } from "../../utils/errorHadler";
 
 export default class NodeSoap {
     private readonly client: Client;
@@ -12,7 +13,7 @@ export default class NodeSoap {
     static async init(): Promise<NodeSoap> {
         const endpoint = process.env.BILLING_URL;
         if (!endpoint) {
-            throw new Error('SOAP endpoint URL is not configured');
+            throw new HttpError('SOAP endpoint URL is not configured', 500);
         }
         try {
             const wsdlPath = path.join(path.dirname(__dirname), this.SOAP_DIR, this.DEFAULT_WSDL);
@@ -22,7 +23,7 @@ export default class NodeSoap {
             const errorMessage = error instanceof Error
                 ? error.message
                 : 'Unknown error';
-            throw new Error(`SOAP client initialization failed: ${errorMessage}`);
+            throw new HttpError(`SOAP client initialization failed: ${errorMessage}`, 400);
         }
     }
     private isValidSoapResponse(response: any): boolean {
@@ -40,7 +41,7 @@ export default class NodeSoap {
     ): Promise<T> {
         const response = await apiMethod(fltParams);
         if (!this.isValidSoapResponse(response)) {
-            throw new Error("Soap response is not valid");
+            throw new HttpError("Soap response is not valid", 500);
         }
         return response[0].ret;
     }

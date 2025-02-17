@@ -10,7 +10,7 @@ function validateBody(candidate: any) {
 		'status' in candidate &&
 		'amount' in candidate &&
 		'paymentId' in candidate &&
-		typeof candidate.status === 'string' &&
+		typeof candidate.status === 'boolean' &&
 		typeof candidate.amount === 'string' &&
 		typeof candidate.paymentId === 'string'
 	);

@@ -1,5 +1,6 @@
 import { BankRequest } from '../controllers/tbank';
 import { BankRequestCandidate } from '../services/tpayments/types';
+import { HttpError } from './errorHadler';
 
 const crypto = require('crypto');
 
@@ -42,7 +43,7 @@ function getOperId(TerminalKey: string): Operators {
     case terminals.multinet.terminalKey:
       return 3743;
     default:
-      throw new Error('Failed to recognize terminal key');
+      throw new HttpError('Failed to recognize terminal key', 500);
   }
 }
 
@@ -54,7 +55,7 @@ function insertBankRequiredFields(
     const { terminalKey, terminalPass } = getTerminal(OperId);
     return { ...rest, TerminalKey: terminalKey, Password: terminalPass };
   } else {
-    throw new Error('Failed to add bank required fields');
+    throw new HttpError('Failed to add bank required fields', 500);
   }
 }
 

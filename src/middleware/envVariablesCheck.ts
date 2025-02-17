@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { HttpError } from '../utils/errorHadler';
 
 const requiredEnvVars = [
 	'ASKNET_TERMINAL_KEY',
@@ -23,7 +24,7 @@ const requiredEnvVars = [
 function validateEnvVars(): void {
 	const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 	if (missingVars.length > 0) {
-		throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+		throw new HttpError(`Missing required environment variables: ${missingVars.join(', ')}`, 500);
 	}
 }
 

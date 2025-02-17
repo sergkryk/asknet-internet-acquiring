@@ -1,3 +1,4 @@
+import { HttpError } from '../../utils/errorHadler';
 import { postJsonWithToken } from '../../utils/http';
 import { InitNewPaymentResponse, IPaymentRequestBody, PaymentStatus } from './types';
 
@@ -27,6 +28,6 @@ export const initPayment = async function (paymentRequestBody: IPaymentRequestBo
   if (isInitNewPaymentResponse(initRequest) && isInitSuccessful(initRequest)) {
     return initRequest;
   } else {
-    throw new Error('Init payment failed or not successful');
+    throw new HttpError('Init payment failed', 500);
   }
 };
