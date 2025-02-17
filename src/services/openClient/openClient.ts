@@ -143,8 +143,10 @@ export const registerReceipt = async function (payload: RegisterReceiptPayload):
     });
     if (request.ok) {
       const responseData = await request.json();
+      console.log(responseData);
       return responseData;
     } else {
+      console.log(request);
       throw new HttpError('Something is wrong when registering receipt!', 500);
     }
   } catch (error) {
