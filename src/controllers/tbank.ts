@@ -102,41 +102,51 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
 				const { phone, email, amount, operid, payment_id, agrmid } = localPayment;
 				// converts amount back from kopecks into rubles
 				const rublesAmount = amount / 100;
-				// sends payment to tax service to register online check
-				const receipt = await registerReceipt({
-					clientContact: phone || email,
-					amount: rublesAmount,
-					operId: operid,
-				});
-				// creates an instance of soap client to send payment to billing
-				const soap = await initSoapClient();
-				// send payment to billing via soap request
-				await soap.submitPayment({
-					amount: rublesAmount,
-					receipt: payment_id,
-					agrmid: agrmid,
-					comment: receipt.receipt_url || '',
-				});
-				// updates local payment status and check url
-				await Promise.all([
-					dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, CONFIRMED_NUMERIC),
-					dbClient.updatePaymentTaxReceipt(`${remotePayment.PaymentId}`, receipt.receipt_url),
-				]);
+				try {
+					// sends payment to tax service to register online check
+					const receipt = await registerReceipt({
+						clientContact: phone || email,
+						amount: rublesAmount,
+						operId: operid,
+					});
+					// creates an instance of soap client to send payment to billing
+					const soap = await initSoapClient();
+					// send payment to billing via soap request
+					await soap.submitPayment({
+						amount: rublesAmount,
+						receipt: payment_id,
+						agrmid: agrmid,
+						comment: receipt.receipt_url || '',
+					});
+					// updates local payment status and check url
+					await Promise.all([
+						dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, CONFIRMED_NUMERIC),
+						dbClient.updatePaymentTaxReceipt(`${remotePayment.PaymentId}`, receipt.receipt_url),
+					]);
+				} catch (error) {
+					const message = error instanceof Error ? error.message : 'Unknown error while submitting payment';
+					throw new HttpError(message, 500);
+				}
 			}
 			break;
 		case REFUNDED:
 			if (CONFIRMED_NUMERIC === localPayment.status_id) {
-				const soap = await initSoapClient();
-				const payment = await soap.getExactPaymentByReceipt(localPayment.payment_id);
-				if (isPaymentWithPay(payment)) {
-					const { receipt, agrmid, recordid } = payment.pay;
-					await soap.cancelPayment({
-						receipt,
-						agrmid,
-						recordid,
-					});
+				try {
+					const soap = await initSoapClient();
+					const payment = await soap.getExactPaymentByReceipt(localPayment.payment_id);
+					if (isPaymentWithPay(payment)) {
+						const { receipt, agrmid, recordid } = payment.pay;
+						await soap.cancelPayment({
+							receipt,
+							agrmid,
+							recordid,
+						});
+					}
+					await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, PaymentStatusNumeric.REFUNDED);
+				} catch (error) {
+					const message = error instanceof Error ? error.message : 'Unknown error while submitting payment';
+					throw new HttpError(message, 500);
 				}
-				await dbClient.updatePaymentStatus(`${remotePayment.PaymentId}`, PaymentStatusNumeric.REFUNDED);
 			}
 			break;
 		case REJECTED:

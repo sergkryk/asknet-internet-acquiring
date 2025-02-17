@@ -148,7 +148,6 @@ export const registerReceipt = async function (payload: RegisterReceiptPayload):
       throw new HttpError('Something is wrong when registering receipt!', 500);
     }
   } catch (error) {
-    console.log(error);
     throw new HttpError('Receipt registration failed!', 500);
   }
 };
