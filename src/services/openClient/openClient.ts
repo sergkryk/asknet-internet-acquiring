@@ -134,7 +134,6 @@ export const registerReceipt = async function (payload: RegisterReceiptPayload):
 	const verifiedContact = verifyContactType(clientContact);
 	// gets command for receipt
 	const command = buildPrintCheckCommand(appId, getPrintCheckCommand(verifiedContact, amount, true));
-	console.log(command);
 	// signs headers
 	const headers = getSignedHeaders(command, secret);
 	// prints check request

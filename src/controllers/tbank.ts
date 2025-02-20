@@ -103,12 +103,12 @@ async function handlePaymentStatusUpdate(remotePayment: BankRequest, localPaymen
 				// converts amount back from kopecks into rubles
 				const rublesAmount = amount / 100;
 				try {
+					//makes up receipt payload
 					const receiptPayload = {
 						clientContact: phone || email,
 						amount: rublesAmount,
 						operId: operid,
 					}
-					console.log(receiptPayload);
 					// sends payment to tax service to register online check
 					const receipt = await registerReceipt(receiptPayload);
 					// creates an instance of soap client to send payment to billing
