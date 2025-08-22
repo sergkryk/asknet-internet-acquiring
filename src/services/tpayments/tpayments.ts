@@ -25,6 +25,7 @@ function isInitSuccessful(response: any): response is InitNewPaymentResponse {
 // Function to initialize payment
 export const initPayment = async function (paymentRequestBody: IPaymentRequestBody): Promise<InitNewPaymentResponse> {
   const initRequest = await postJsonWithToken(URL, paymentRequestBody);
+  console.log(paymentRequestBody)
   if (isInitNewPaymentResponse(initRequest) && isInitSuccessful(initRequest)) {
     return initRequest;
   } else {

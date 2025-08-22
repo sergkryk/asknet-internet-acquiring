@@ -34,6 +34,8 @@ export const postJsonWithToken = async function (
   data: BankRequestCandidate
 ) {
   const dataWithToken = getToken(data);
+  console.log(dataWithToken)
   const response = await postJson(url, dataWithToken);
+  console.log(response)
   return response;
 };
