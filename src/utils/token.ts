@@ -66,7 +66,8 @@ export const getToken = function (
   const sortedKeys = Object.keys(dataWithBankRequiredFields).sort() as Array<keyof typeof dataWithBankRequiredFields>;
   const concatenatedValues = sortedKeys.map((key) => dataWithBankRequiredFields[key]).join('');
   const hash = crypto.createHash('sha256').update(concatenatedValues, 'utf8').digest('hex');
-  return { ...dataWithBankRequiredFields, Token: hash };
+  const {Password, ...rest} = dataWithBankRequiredFields
+  return { ...rest, Token: hash };
 };
 
 export const verifyRequestToken = function (request: BankRequest): boolean {
