@@ -12,20 +12,24 @@ const headers = new Headers({
 	'Content-Type': 'application/json',
 });
 // Operators' appIds and secrets
-const operatorsAppIdAndSecret: Record<Operators, { appId: string; secret: string }> = {
+const operatorsAppIdAndSecret: Record<Operators, { appId: string; secret: string, author: string }> = {
 	4016: {
 		appId: process.env.ASKNET_OPENCLIENT_APP_ID!,
 		secret: process.env.ASKNET_OPENCLIENT_SECRET!,
+		author: 'Крюков Сергей Николаевич',
+		
 	},
 	3743: {
 		appId: process.env.MULTINET_OPENCLIENT_APP_ID!,
 		secret: process.env.MULTINET_OPENCLIENT_SECRET!,
+		author: 'Общество с ограниченной ответсвенностью "Мультинет"'
 	},
 };
 // Utility functions to get AppId and Secret for an operator
 function getOperatorAppIdAndSecret(operid: Operators): {
 	appId: string;
 	secret: string;
+	author: string;
 } {
 	const operator = operatorsAppIdAndSecret[operid];
 	if (!operator) {
@@ -34,7 +38,7 @@ function getOperatorAppIdAndSecret(operid: Operators): {
 	return operator;
 }
 // Command structure for printing a receipt
-const getPrintCheckCommand = (smsEmail54FZ: string, sum: number, isCashless: boolean): PrintCheckCommand => ({
+const getPrintCheckCommand = (smsEmail54FZ: string, sum: number, author: string, isCashless: boolean = true): PrintCheckCommand => ({
 	goods: [
 		{
 			name: 'Услуги связи',
@@ -46,7 +50,7 @@ const getPrintCheckCommand = (smsEmail54FZ: string, sum: number, isCashless: boo
 			payment_mode: 4,
 		},
 	],
-	author: 'Крюков Сергей Николаевич',
+	author: author,
 	tag1055: '2',
 	smsEmail54FZ,
 	payed_cash: !isCashless ? sum : 0,
@@ -129,11 +133,11 @@ export const registerReceipt = async function (payload: RegisterReceiptPayload):
 	// destructures payload to get variables
 	const { amount, clientContact, operId } = payload;
 	// selects operator variables based on operId
-	const { appId, secret } = getOperatorAppIdAndSecret(operId);
+	const { appId, secret, author } = getOperatorAppIdAndSecret(operId);
 	// verifies what contact type is and formats it if needed
 	const verifiedContact = verifyContactType(clientContact);
 	// gets command for receipt
-	const command = buildPrintCheckCommand(appId, getPrintCheckCommand(verifiedContact, amount, true));
+	const command = buildPrintCheckCommand(appId, getPrintCheckCommand(verifiedContact, amount, author));
 	// signs headers
 	const headers = getSignedHeaders(command, secret);
 	// prints check request
